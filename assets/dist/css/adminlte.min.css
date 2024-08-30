@@ -4195,7 +4195,7 @@
  .login-logo,.register-logo{font-size:2.1rem;font-weight:300;margin-bottom:.9rem;text-align:center}
  .login-logo a,.register-logo a{color:#fff}
  .login-page,.register-page{-ms-flex-align:center;align-items:center;
-  background-image: linear-gradient(180deg,#287fb8 10%,#0a3856 100%);display:-ms-flexbox;display:flex;-ms-flex-direction:column;flex-direction:column;height:90vh;-ms-flex-pack:center;justify-content:center}
+  background-image: linear-gradient(180deg, #ffafc7 10%, #bf7088 100%);display:-ms-flexbox;display:flex;-ms-flex-direction:column;flex-direction:column;height:90vh;-ms-flex-pack:center;justify-content:center}
  .login-box,.register-box{width:360px}
  @media (max-width:576px){.login-box,.register-box{margin-top:.5rem;width:90%}
 }

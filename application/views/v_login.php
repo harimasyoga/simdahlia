@@ -28,10 +28,10 @@
 <div class="login-box">
 
   <div class="login-logo">
-    <!-- <img src="<?= base_url('assets/gambar/').$setting->logo ?>" width="50%"> -->
-    <i style="color:white" class="fas fa-cogs"></i>
+    <img src="<?= base_url('assets/gambar/').$setting->logo ?>" width="50%">
+    <!-- <i style="color:white" class="fas fa-cogs"></i> -->
     <br>
-    <a href="#"><b><?= $setting->singkatan ?></b></a>
+    <a href="#" style="color:#000"><b><?= $setting->singkatan ?></b></a>
   </div>
   <!-- /.login-logo -->
   <div class="card">
