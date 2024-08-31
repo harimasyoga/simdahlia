@@ -31,7 +31,7 @@
     <img src="<?= base_url('assets/gambar/').$setting->logo ?>" width="50%">
     <!-- <i style="color:white" class="fas fa-cogs"></i> -->
     <br>
-    <a href="#" style="color:#000"><b><?= $setting->singkatan ?></b></a>
+    <a href="#" style="color:#FFF"><b><?= $setting->singkatan ?></b></a>
   </div>
   <!-- /.login-logo -->
   <div class="card">
