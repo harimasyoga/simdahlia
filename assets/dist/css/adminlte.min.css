@@ -2424,7 +2424,7 @@
 }
  @media (max-width:991.98px){.sidebar-mini-md .content-wrapper,.sidebar-mini-md .content-wrapper::before,.sidebar-mini-md .main-footer,.sidebar-mini-md .main-footer::before,.sidebar-mini-md .main-header,.sidebar-mini-md .main-header::before{margin-left:4.6rem}
 }
- .content-wrapper{background:#f4f6f9}
+ .content-wrapper{background:#e2e2e2}
  .content-wrapper>.content{padding:0 .5rem}
  .main-sidebar,.main-sidebar::before{transition:margin-left .3s ease-in-out,width .3s ease-in-out;width:250px}
  @media (prefers-reduced-motion:reduce){.main-sidebar,.main-sidebar::before{transition:none}
