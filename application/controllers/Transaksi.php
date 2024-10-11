@@ -31,23 +31,34 @@ class Transaksi extends CI_Controller
 	}
 
 
+	// public function PO()
+	// {
+	// 	$data = array(
+	// 		'judul' => "Purchase Order",
+	// 		'produk' => $this->db->query("SELECT * FROM m_produk order by id_produk")->result(),
+	// 		'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
+	// 		'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a 
+    //         left join m_kab b on a.kab=b.kab_id 
+    //         Left Join m_sales c on a.id_sales=c.id_sales
+    //         order by id_pelanggan")->result(),
+	// 		'level' => $this->session->userdata('level'). "aa",
+	// 	);
+
+	// 	$this->load->view('header', $data);
+	// 	$this->load->view('Transaksi/v_po', $data);
+	// 	$this->load->view('footer');
+	// }
+	
 	public function PO()
 	{
 		$data = array(
-			'judul' => "Purchase Order",
-			'produk' => $this->db->query("SELECT * FROM m_produk order by id_produk")->result(),
-			'sales' => $this->db->query("SELECT * FROM m_sales order by id_sales")->result(),
-			'pelanggan' => $this->db->query("SELECT * FROM m_pelanggan a 
-            left join m_kab b on a.kab=b.kab_id 
-            Left Join m_sales c on a.id_sales=c.id_sales
-            order by id_pelanggan")->result(),
-			'level' => $this->session->userdata('level'). "aa",
+			'judul' => "ORDER PEMBELIAN",
 		);
-
 		$this->load->view('header', $data);
-		$this->load->view('Transaksi/v_po', $data);
+		$this->load->view('Transaksi/v_po');
 		$this->load->view('footer');
 	}
+
 
 	function load_produk()
     {
@@ -123,275 +134,158 @@ class Transaksi extends CI_Controller
 		$result   = $this->m_transaksi->$jenis($jenis, $status);
 		echo json_encode($result);
 	}
+
+	function Insert_po()
+	{
+		if($this->session->userdata('username'))
+		{ 
+			$result = $this->m_transaksi->save_po();
+			echo json_encode($result);
+		}
+		
+	}
+
 	function load_data()
 	{
 		$jenis        = $this->uri->segment(3);
 		$data         = array();
 
-		if ($jenis == "po") {
+		if ($jenis == "po") 
+		{						
+			$query = $this->db->query("SELECT*FROM po_header a 
+			join po_detail b on a.no_po=b.no_po
+			ORDER BY a.tgl_po,b.id_po_det")->result();
 
-			if($this->session->userdata('username')=='ppismg'){
-				$cek_data = 'WHERE id_sales in ("2","3")';
-			}else{
-				$cek_data = '';
-			}
+			$i               = 1;
+			foreach ($query as $r) 
+			{
 
-			$query = $this->m_master->query("SELECT a.*,b.*,a.add_time as time_input FROM trs_po a join m_pelanggan b on a.id_pelanggan=b.id_pelanggan $cek_data order by a.tgl_po desc, id desc")->result();
-			$i = 1;
-			foreach ($query as $r) {
-				$row        = array();
-				$time       = substr($r->tgl_po, 0,10);
-				$time_po    = substr($r->time_input, 10,10);
+				$rinci_stok  = $this->db->query("SELECT*FROM po_detail where no_po ='$r->no_po'");
 
-                if($r->status_app1=='N')
-                {
-                    $btn1   = 'btn-warning';
-                    $i1     = '<i class="fas fa-lock"></i>';
-					$alasan1 = '';
-                }else  if($r->status_app1=='H')
-                {
-                    $btn1   = 'btn-danger';
-                    $i1     = '<i class="far fa-hand-paper"></i>';
-					$alasan1 = $r->ket_acc1;
-                }else  if($r->status_app1=='R')
-                {
-                    $btn1   = 'btn-danger';
-                    $i1     = '<i class="fas fa-times"></i>';
-					$alasan1 = $r->ket_acc1;
-                }else{
-                    $btn1   = 'btn-success';
-                    $i1     = '<i class="fas fa-check-circle"></i>';
-					$alasan1 = '';
-                }
-                
-                if($r->status_app2=='N')
+				$hrg_sat = 0;
+				foreach ($rinci_stok->result() as $row_detail) 
+				{
+					$hrg_sat   += $row_detail->hrg_sat;
+				}		
+
+				$total_hrg_sat = $hrg_sat;
+				
+				if($r->pajak=='PPN')
+				{
+					$ppn_total    = ROUND($total_hrg_sat *0.11);
+				}else{
+					$ppn_total   = 0;
+				}
+				
+				$total_all     = $total_hrg_sat - $r->diskon + $ppn_total;
+
+				$id       = "'$r->id_header_po'";
+				$no_po    = "'$r->no_po'";
+
+				if($r->acc_owner=='N')
                 {
                     $btn2   = 'btn-warning';
                     $i2     = '<i class="fas fa-lock"></i>';
-					$alasan2 = '';
-                }else  if($r->status_app2=='H')
-                {
-                    $btn2   = 'btn-danger';
-                    $i2     = '<i class="far fa-hand-paper"></i>';
-					$alasan2 = $r->ket_acc2;
-                }else  if($r->status_app2=='R')
-                {
-                    $btn2   = 'btn-danger';
-                    $i2     = '<i class="fas fa-times"></i>';
-					$alasan2 = $r->ket_acc2;
-                }else{
+                } else {
                     $btn2   = 'btn-success';
                     $i2     = '<i class="fas fa-check-circle"></i>';
-					$alasan2 = '';
                 }
-                
-                if($r->status_app3=='N')
-                {
-                    $btn3   = 'btn-warning';
-                    $i3     = '<i class="fas fa-lock"></i>';
-					$alasan3 = '';
-                }else  if($r->status_app3=='H')
-                {
-                    $btn3   = 'btn-danger';
-                    $i3     = '<i class="far fa-hand-paper"></i>';
-					$alasan3 = $r->ket_acc3;
-                }else  if($r->status_app3=='R')
-                {
-                    $btn3   = 'btn-danger';
-                    $i3     = '<i class="fas fa-times"></i>';
-					$alasan3 = $r->ket_acc3;
-                }else{
-                    $btn3   = 'btn-success';
-                    $i3     = '<i class="fas fa-check-circle"></i>';
-					$alasan3 = '';
-                }
-                
-                if($r->status == 'Open')
-                {
-                    $btn_s   = 'btn-info';
-                }else if($r->status == 'Approve')
-                {
-                    $btn_s   = 'btn-success';
-                }else{
-                    $btn_s   = 'btn-danger';
-                }
-
-				$row[] = '<div class="text-center">'.$i.'</div>';
-				$row[] = '<div class="text-center"><a href="javascript:void(0)" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')">' . $r->no_po . "<a></div>";
-
-				$row[] = '<div class="text-center">'.$this->m_fungsi->tanggal_ind($time).' <br> ('.$time_po.')</div>';
-
-                $time1 = ( ($r->time_app1 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app1,0,10))  . ' - ' .substr($r->time_app1,10,9)) ;
-
-                $time2 = ( ($r->time_app2 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app2,0,10))  . ' - ' .substr($r->time_app2,10,9));
-
-                $time3 = ( ($r->time_app3 == null) ? 'BELUM ACC' : $this->m_fungsi->tanggal_format_indonesia(substr($r->time_app3,0,10))  . ' - ' .substr($r->time_app3,10,9));
-
-				$row[] = '<div class="text-center"><button type="button" class="btn btn-sm '.$btn_s.' ">'.$r->status.'</button></div>';
-
-				$row[] = '<div class="text-center">'.$r->kode_po.'</div>';
-				$row[] = '<div style="display:none">'.$r->kode_po.'</div>';
-				// $row[] = $r->total_qty;
-				$row[] = '<div class="text-center">'.$r->nm_pelanggan.'</div>';
-                
-				$row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Marketing`,' . "'" . $r->status_app1 . "'" . ',' . "'" . $time1 . "'" . ',' . "'" . $alasan1 . "'" . ',' . "'" . $r->no_po . "'" . ')" type="button" title="'.$time1.'" style="text-align: center;" class="btn btn-sm '.$btn1.' ">'.$i1.'</button><br>
-					'.$alasan1.'</div>
-				';
 				
-                $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`PPIC`,' . "'" . $r->status_app2 . "'" . ',' . "'" . $time2 . "'" . ',' . "'" . $alasan2 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time2.'"  style="text-align: center;" class="btn btn-sm '.$btn2.' ">'.$i2.'</button><br>
-					'.$alasan2.'</div>
-				';
-                $row[] = '<div class="text-center">
-					<button onclick="data_sementara(`Owner`,' . "'" . $r->status_app3 . "'" . ',' . "'" . $time3 . "'" . ',' . "'" . $alasan3 . "'" . ',' . "'" . $r->no_po . "'" . ')"  type="button" title="'.$time3.'"  style="text-align: center;" class="btn btn-sm '.$btn3.' ">'.$i3.'</button><br>
-					'.$alasan3.'</div>
-				';
-
-				// $aksi = '-';
-                $aksi = '';
-
-				if (!in_array($this->session->userdata('level'), ['Admin','Marketing','PPIC','Owner']))
-                {
-
-					if ($r->status == 'Open' && $r->status_app1 == 'N') {
-						if (in_array($this->session->userdata('level'), ['Keuangan1'])) { 
-
-							$aksi .= ' 
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a>
-
-							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
-
-							';
-						} else {
-
-							$aksi .= ' 
-
-							<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
-								<i class="fa fa-edit"></i>
-							</button>
-							
-							<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
-								<i class="fa fa-trash-alt"></i>
-							</button>  
-
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-							
-							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
-							';
-						}
-						
-					}else{
-
-						$aksi .= ' 
-							<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-							<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-							
-							<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>';
-
-					}
-					
-				}else{
-					if ($this->session->userdata('level') == 'Marketing' ) {
-
-						if($r->status_app1 == 'N' || $r->status_app1 == 'H' || $r->status_app1 == 'R')
-						{
-							$aksi .=  ' 
-									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-										<i class="fa fa-check"></i>
-									</button>  ';
-						}
-					}
-
-					if ($this->session->userdata('level') == 'PPIC' && $r->status_app1 == 'Y' ) {
-
-						if($r->status_app2 == 'N' || $r->status_app2 == 'H' || $r->status_app2 == 'R'){
-
-							$aksi .=  ' 
-									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-										<i class="fa fa-check"></i>
-									</button> ';
-						}
-					}
-
-					if ($this->session->userdata('level') == 'Owner' && $r->status_app1 == 'Y' && $r->status_app2 == 'Y' ) {
-						if($r->status_app3 == 'N' || $r->status_app3 == 'H' || $r->status_app3 == 'R'){
-
-							$aksi .=  ' 
-									<button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-										<i class="fa fa-check"></i>
-									</button>  ';
-						}
-					}
-
-                    if ($this->session->userdata('level') == 'Admin' ) 
-					{
-
-						if($r->status_app1 == 'N' || $r->status_app2 == 'N' || $r->status_app3 == 'N' || $r->status_app1 == 'H' || $r->status_app2 == 'H' || $r->status_app3 == 'H' || $r->status_app1 == 'R' || $r->status_app2 == 'R' || $r->status_app3 == 'R'){
-							$aksi .=  '
-								<button type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'edit'" . ')" title="EDIT" class="btn btn-info btn-sm">
-									<i class="fa fa-edit"></i>
-								</button>
-
-								<button type="button" title="DELETE"  onclick="deleteData(' . "'" . $r->no_po . "'" . ',' . "'" . $r->no_po . "'" . ')" class="btn btn-danger btn-sm">
-									<i class="fa fa-trash-alt"></i>
-								</button>  
-	                            <button title="VERIFIKASI DATA" type="button" onclick="tampil_edit(' . "'" . $r->id . "'" . ',' . "'detail'" . ')" class="btn btn-info btn-sm">
-                                    <i class="fa fa-check"></i>
-	                            </button>
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-								
-								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
-								';
-						}else{
-							$aksi .=  '
-								<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("Transaksi/Cetak_PO?no_po=" . $r->no_po . "") . '" title="Cetak" ><i class="fas fa-print"></i> </a>
-
-								<a target="_blank" class="btn btn-sm btn-success" href="' . base_url("Transaksi/Cetak_wa_po?no_po=" . $r->no_po . "") . '" title="Format WA" ><b><i class="fab fa-whatsapp"></i> </b></a> 
-								
-								<a target="_blank" class="btn btn-sm btn-primary" href="' . base_url("Transaksi/Cetak_img_po?no_po=" . $r->no_po . "") . '" title="CETAK PO" ><b><i class="fas fa-images"></i> </b></a>
-								';
-
-						}
-
-						if($time<date('2023-11-13'))
-						{
-							
-							// 1 itu aktif 0 itu non aktif / po lama
-							if($r->aktif=='1')
-							{
-								$aksi .=  '
-								<button type="button" title="NON AKTIF"  onclick="nonaktif(0,' . "'" . $r->id . "'" . ',' . "'" . $r->no_po . "'" . ',' . "'" . $this->m_fungsi->tanggal_ind($time) . "'" . ')" class="btn btn-sm btn-warning">
-									<i class="fas fa-power-off"></i>
-								</button> 
-								';
-							}else{
-								$aksi .=  '
-								<button type="button" title="AKTIF"  onclick="nonaktif(1,'. "'" . $r->id . "'" . ',' . "'" . $r->no_po . "'" . ',' . "'" . $this->m_fungsi->tanggal_ind($time) . "'" . ')" class="btn btn-sm btn-primary">
-									<i class="fas fa-power-off"></i>
-								</button> 
-								';
-							}
-
-						}
-					}
-
-					
+				if (in_array($this->session->userdata('username'), ['bumagda','developer']))
+				{
+					// $urll2 = "onclick=open_modal('$r->id_header_po','$r->no_po')";
+					$urll2 = "onclick=acc_inv('$r->no_po','$r->acc_owner')";
+				} else {
+					$urll2 = '';
 				}
 
-				$row[] = '<div class="text-center">'.$aksi.'</div>';
+				if($r->pajak=='PPN_PPH')
+				{
+					$pajak = 'PPN - PPH';
+				}else{
+					$pajak = $r->pajak;
+				}
+					
+				$row    = array();
+				$row[]  = '<div class="text-center">'.$i.'</div>';
+				$row[]  = '<div class="text-center">'.$r->no_po.'</div>';
+				$row[]  = '<div class="text-center">'.$r->tgl_po.'</div>';
+				$row[]  = '<div class="text-center">'.$r->supp.'</div>';
 
+				// // Pembayaran
+				// $bayar = $this->db->query("SELECT SUM(jumlah_bayar) AS byr_beli from trs_bayar_inv_beli where no_inv_beli='$r->no_inv_beli' GROUP BY no_inv_beli");
+
+				// if ($r->acc_owner == "N") 
+				// {
+				// 	$txtB            = 'btn-light';
+				// 	$txtT            = '-';
+				// 	$kurang_bayar    = '';
+				// }else{
+
+				// 	if($bayar->num_rows() == 0){
+				// 		$txtB           = 'btn-danger';
+				// 		$txtT           = 'BELUM BAYAR';
+				// 		$kurang_bayar   = '';
+				// 	}
+					
+				// 	if($bayar->num_rows() > 0){
+				// 		if($bayar->row()->byr_beli == round($total_all)){
+				// 			$txtB            = 'btn-success';
+				// 			$txtT            = 'LUNAS';
+				// 			$kurang_bayar    = '';
+				// 		}else{
+				// 			$txtB            = 'btn-warning';
+				// 			$txtT            = 'DI CICIL';
+				// 			$kurang_bayar    = '<br><span style="color:#ff5733">'.number_format($total_all-$bayar->row()->byr_beli,0,',','.').'</span>';
+				// 		}
+				// 	}
+				// }
+				// $row[] = '<div class="text-center">
+				// 	<button type="button" class="btn btn-xs '.$txtB.'" style="font-weight:bold" >'.$txtT.'</button><br>
+				// </div>';
+
+
+				// $row[]  = '<div class="text-center">'.$pajak.'</div>';
+
+				$row[]  = '
+						<div class="text-center"><a style="text-align: center;" class="btn btn-sm '.$btn2.' " '.$urll2.' title="VERIFIKASI DATA" ><b>'.$i2.' </b> </a><span style="font-size:1px;color:transparent">'.$r->acc_owner.'</span><div>';
+
+				$btncetak ='<a target="_blank" class="btn btn-sm btn-danger" href="' . base_url("
+				Transaksi/Cetak_po?no_po="."$r->no_po"."") . '" title="Cetak" ><i class="fas fa-print"></i> </a>';
+
+				$btnEdit = '<a class="btn btn-sm btn-warning" onclick="edit_data(' . $id . ',' . $no_po . ')" title="EDIT DATA" >
+				<b><i class="fa fa-edit"></i> </b></a>';
+
+				$btnHapus = '<button type="button" title="DELETE"  onclick="deleteData(' . $id . ',' . $no_po . ')" class="btn btn-secondary btn-sm">
+				<i class="fa fa-trash-alt"></i></button> ';
+					
+				if (in_array($this->session->userdata('level'), ['Admin','konsul_keu','User','Keuangan1']))
+				{
+					if ($r->acc_owner == "N") 
+					{						
+						$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+					}else{
+
+						if($bayar->num_rows() == 0)
+						{
+							$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.' '.$btnHapus.'</div>';
+						}else{
+							$row[] = '<div class="text-center">'.$btnEdit.' '.$btncetak.'</div>';
+
+						}
+						
+						
+					}
+
+				}else{
+					$row[] = '<div class="text-center"></div>';
+				}
+				
 				$data[] = $row;
-
 				$i++;
 			}
+		
+		
 		} else if ($jenis == "trs_so_detail") {
 			$query = $this->db->query("SELECT d.id AS id_po_detail,p.kode_mc,d.tgl_so,p.nm_produk,d.status_so,COUNT(s.rpt) AS c_rpt,l.nm_pelanggan,s.* FROM trs_po_detail d
 			INNER JOIN trs_so_detail s ON d.no_po=s.no_po AND d.kode_po=s.kode_po AND d.no_so=s.no_so AND d.id_produk=s.id_produk
@@ -571,6 +465,142 @@ class Transaksi extends CI_Controller
 
 
 		echo json_encode($result);
+	}
+
+	function Cetak_po()
+	{
+		$no_po  = $_GET['no_po'];
+
+        $query_header = $this->db->query("SELECT*FROM po_header a 
+			join po_detail b on a.no_po=b.no_po
+			where a.no_po = '$no_po'
+			ORDER BY a.tgl_po,b.id_po_det");
+        
+        $data = $query_header->row();
+        
+        $query_detail = $this->db->query("SELECT*FROM po_detail where no_po= '$no_po'");
+
+		$html = '';
+
+		if ($query_header->num_rows() > 0) 
+		{
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:14px;font-family: ;">
+                        <tr style="font-weight: bold;">
+                            <td colspan="5" align="center">
+                            <b>( No. ' . $no_po . ' )</b>
+                            </td>
+                        </tr>
+                 </table><br>';
+
+            $html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+			<tr>
+                <td width="10 %" align="left">No PO</td>
+                <td width="5 %" align="right"> : </td>
+                <td width="30 %" > '. $data->no_po .'</td>
+                <td width="5 %" ></td>
+                <td width="15 %" align="left">TERMS</td>
+                <td width="5 %" align="right"> : </td>
+                <td width="35 %" > NET '. $data->terms .'</td>
+            </tr>
+            <tr>
+                <td align="left">Tgl PO</td>
+                <td align="right"> : </td>
+                <td> '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_po) .'</td>
+				
+                <td></td>
+                <td align="left">FOB</td>
+                <td align="right"> : </td>
+                <td> '. $data->fob .'</td>
+            </tr>
+            <tr>
+                <td align="left">SUPPLIER</td>
+                <td align="right"> : </td>
+                <td> '. $data->supp .'</td>
+				
+                <td></td>
+                <td align="left">Tgl di Minta</td>
+                <td align="right"> : </td>
+                <td> '. $this->m_fungsi->tanggal_format_indonesia($data->tgl_minta) .'</td>
+            </tr>
+           
+            </table><br>';
+
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+                        <tr style="background-color: #cccccc">
+							<th align="center">NO</th>
+							<th align="center">NAMA</th>
+							<th align="center">KETERANGAN</th>
+                            <th align="center">QTY</th>
+                            <th align="center">HARGA SATUAN</th>
+                            <th align="center">JUMLAH</th>
+						</tr>';
+						
+			$no              = 1;
+			$jum_all    = 0;			
+			foreach ($query_detail->result() as $r) 
+			{
+				$html .= '<tr>
+						<td align="center">' . $no . '</td>
+						<td align="">' . $r->nm_barang . '</td>
+						<td align="">' . $r->ket . '</td>
+						<td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>
+						<td align="right">' . number_format($r->hrg_sat, 0, ",", ".") . '</td>
+						<td align="right">' . number_format($r->jum, 0, ",", ".") . '</td>
+					</tr>';
+
+				$jum_all += $r->jum;
+				$no++;
+			}
+
+			$total_nominal = $jum_all;
+				
+			if($data->pajak=='PPN')
+			{
+				$ppn_total    = ROUND($total_nominal *0.11);
+				$pph_total    = 0;
+			}else if($data->pajak=='PPN_PPH')
+			{
+				$ppn_total   = ROUND($total_nominal *0.11);
+				$pph_total   = ROUND($total_nominal *0.02);
+			}else{
+				$ppn_total   = 0;
+				$pph_total   = 0;
+			}
+			
+			$total_all     = $total_nominal - $data->diskon + $ppn_total - $pph_total;
+
+			$html .='<tr style="">
+						<td align="right" colspan="5"><b>Sub Total</b></td>
+						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="5"><b>Diskon</b></td>
+						<td align="right" ><b>' . number_format($data->diskon, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="5"><b>PPN</b></td>
+						<td align="right" ><b>' . number_format($ppn_total, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="5"><b>PPH</b></td>
+						<td align="right" ><b>' . number_format($pph_total, 0, ",", ".") . '</b></td>						
+					</tr>
+					<tr style="">
+						<td align="right" colspan="5"><b>Total</b></td>
+						<td align="right" ><b>' . number_format($total_all, 0, ",", ".") . '</b></td>						
+					</tr>';
+			$html .= '
+                 </table>';
+			
+		} else {
+			$html .= '<h1> Data Kosong </h1>';
+		}
+
+		// echo $html;
+		// $this->m_fungsi->_mpdf($html);
+		$this->m_fungsi->template_kop('PO',$no_po,$html,'P','1');
+		// $this->m_fungsi->mPDFP($html);
 	}
 
 

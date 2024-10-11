@@ -443,7 +443,7 @@ class M_fungsi extends CI_Model {
 			 <thead>
 				  <tr>
 					   <td rowspan=\"5\" align=\"center\">
-							<img src=\"" . base_url() . "assets/gambar/ppi.png\"  width=\"80\" height=\"70\" />
+							<img src=\"" . base_url() . "assets/gambar/logo.png\"  width=\"80\" height=\"70\" />
 					   </td>
 					   <td colspan=\"20\">
 							<b>
