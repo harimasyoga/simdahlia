@@ -160,6 +160,96 @@ class M_transaksi extends CI_Model
 			}
 		}
 	}
+	
+	function save_penawaran()
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+			$tgl_tawar   = $this->input->post('tgl_tawar');
+			$tanggal     = explode('-',$tgl_tawar);
+			$tahun       = $tanggal[0];
+			$bulan       = $tanggal[1];
+			$bulan_rmw   = $this->m_master->get_romawi($bulan);
+
+			$c_no_inv    = $this->m_fungsi->urut_transaksi('PENAWARAN');
+			$m_no_inv    = $c_no_inv.'/PNWR'.'/'.$bulan_rmw.'/'.$tahun;
+
+			$data_header = array(
+				'no_penawaran'  => $m_no_inv,
+				'hal'         	=> $this->input->post('hal'),
+				'tgl_penawaran' => $this->input->post('tgl_tawar'),
+				'kpd'         	=> $this->input->post('kpd'),
+				'ket'         	=> $this->input->post('ket'),
+				'alamat'      	=> $this->input->post('alamat'),
+				'acc_owner'   	=> 'N',
+				'add_user'    	=> $this->username,
+				'add_time'    	=> date("Y:m:d H:i:s"),
+			);
+
+			$result_header = $this->db->insert('penawaran_header', $data_header);
+	
+			// rinci
+			$rowloop     = $this->input->post('bucket');
+			for($loop = 0; $loop <= $rowloop; $loop++)
+			{
+				$data_detail = array(	
+					'no_penawaran'    => $m_no_inv,
+					'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
+					'spek'            => $this->input->post('spek['.$loop.']'),
+					'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
+					'moq'            => str_replace('.','',$this->input->post('moq['.$loop.']')),
+					'note'            => $this->input->post('note['.$loop.']'),
+				);
+
+				$result_detail = $this->db->insert('penawaran_detail', $data_detail);
+			}		
+
+			return $result_detail;
+			
+		}else{
+			
+			$no_inv_beli    = $this->input->post('no_inv_beli');
+
+			$data_header = array(
+				'no_penawaran'  => $m_no_inv,
+				'hal'         	=> $this->input->post('hal'),
+				'tgl_penawaran' => $this->input->post('tgl_tawar'),
+				'kpd'         	=> $this->input->post('kpd'),
+				'ket'         	=> $this->input->post('ket'),
+				'alamat'      	=> $this->input->post('alamat'),
+				'acc_owner'   	=> 'N',
+				'add_user'    	=> $this->username,
+				'add_time'    	=> date("Y:m:d H:i:s"),
+			);
+
+			$this->db->where('id_header_penawaran', $this->input->post('id_header_penawaran'));
+			$result_header = $this->db->update('penawaran_header', $data_header);
+	
+			// delete rinci
+			$del_detail = $this->db->query("DELETE FROM penawaran_detail where no_po='$no_po' ");
+
+			// rinci
+			if($del_detail)
+			{
+				$rowloop     = $this->input->post('bucket');
+				for($loop = 0; $loop <= $rowloop; $loop++)
+				{
+					$data_detail = array(				
+						'no_po'    => $m_no_inv,
+						'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
+						'spek'            => $this->input->post('spek['.$loop.']'),
+						'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
+						'moq'            => str_replace('.','',$this->input->post('moq['.$loop.']')),
+						'note'            => $this->input->post('note['.$loop.']'),
+					);
+	
+					$result_detail = $this->db->insert('penawaran_detail', $data_detail);
+				}		
+				return $result_detail;
+			}
+		}
+	}
 
 	function batalDataSO()
 	{

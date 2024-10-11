@@ -41,21 +41,15 @@
 				<div class="col-md-2">No Penawaran</div>
 				<div class="col-md-3">
 					<input type="hidden" name="sts_input" id="sts_input">
-					<input type="hidden" name="id_header_po" id="id_header_po">
+					<input type="hidden" name="id_header_penawaran" id="id_header_penawaran">
 
-					<input type="text" class="angka form-control" name="no_po" id="no_po" value="AUTO" readonly>
+					<input type="text" class="angka form-control" name="no_penawaran" id="no_penawaran" value="AUTO" readonly>
 				</div>
 				<div class="col-md-1"></div>
-				<div class="col-md-2">Terms</div>
+				
+				<div class="col-md-2">Hal</div>
 				<div class="col-md-3">
-					<div class="input-group mb-1">
-						<div class="input-group-append">
-							<span class="input-group-text"><b>NET</b>
-							</span>
-						</div>	
-						<input type="text" class="angka form-control" name="terms" id="terms"  onkeyup="ubah_angka(this.value,this.id)">
-							
-					</div>
+					<input type="text" class= "form-control" name="hal" id="hal"  oninput="this.value = this.value.toUpperCase()">
 				</div>
 
 			</div>
@@ -63,42 +57,36 @@
 			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
 				<div class="col-md-2">Tanggal Penawaran</div>
 				<div class="col-md-3">
-					<input type="date" class="form-control" name="tgl_po" id="tgl_po" value ="<?= date('Y-m-d') ?>" >
+					<input type="date" class="form-control" name="tgl_tawar" id="tgl_tawar" value ="<?= date('Y-m-d') ?>" >
 				</div>
 				<div class="col-md-1"></div>
-
-				<div class="col-md-2">Hal</div>
+				<div class="col-md-2">Kepada</div>
 				<div class="col-md-3">
-					<input type="text" class= "form-control" name="fob" id="fob"  oninput="this.value = this.value.toUpperCase()">
+					<input type="text" class= "form-control" name="kpd" id="kpd"  oninput="this.value = this.value.toUpperCase()">
 				</div>
+				
 			</div>
 			
 			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">
-				<div class="col-md-2">Kepada</div>
-				<div class="col-md-3">
-					<input type="text" class= "form-control" name="supp" id="supp"  oninput="this.value = this.value.toUpperCase()">
+				
+			<div class="col-md-2">Keterangan</div>
+					<div class="col-md-3">
+					<textarea type="text" class="form-control" name="ket" id="ket" ></textarea>
 				</div>
+				
 				<div class="col-md-1"></div>
-
-				<div class="col-md-2">Tanggal Di Minta</div>
+				<div class="col-md-2">Kepada Alamat :</div>
 				<div class="col-md-3">
-					<input type="date" class="form-control" name="tgl_minta" id="tgl_minta" value ="<?= date('Y-m-d') ?>" >
+					<textarea type="text" class="form-control" name="alamat" id="alamat" ></textarea>
 				</div>
 			</div>
 			
-			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-			<div class="col-md-2">Keterangan</div>
-				<div class="col-md-3">
-					<textarea type="text" class="form-control" name="cttn" id="cttn" ></textarea>
-				</div>
-				<div class="col-md-6"></div>
-			</div>
 			<br>
 			
 			<!-- detail PO-->
 			<hr>
 			<div class="card-body row" style="padding:0 20px 20px;font-weight:bold">
-				<div class="col-md-4" style="padding-right:0">List Item Pembelian</div>
+				<div class="col-md-4" style="padding-right:0">List Item Penawaran</div>
 				<div class="col-md-8">&nbsp;
 				</div>
 			</div>
@@ -110,10 +98,10 @@
 						<tr>
 							<th id="header_del">Delete</th>
 							<th style="padding : 12px 50px">Nama Barang</th>
-							<th style="padding : 12px 70px" >Keterangan</th>
-							<th style="padding : 12px 70px" >Qty</th>
+							<th style="padding : 12px 70px" >Spesifikasi</th>
 							<th style="padding : 12px 50px" >Harga Satuan</th>
-							<th style="padding : 12px 50px" >Jumlah</th>
+							<th style="padding : 12px 50px" >MoQ</th>
+							<th style="padding : 12px 50px" >Note</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -133,16 +121,7 @@
 							</td>		
 							<td style="padding : 12px 20px">
 								<div class="input-group mb-1">
-									<input type="text" size="5" name="ket[0]" id="ket0" class="form-control">
-								</div>
-							</td>		
-							<td style="padding : 12px 20px">
-								<div class="input-group mb-1">
-									<input type="text" size="5" name="qty[0]" id="qty0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>	
-									<div class="input-group-append">
-										<span class="input-group-text"><b>PCS</b>
-										</span>
-									</div>	
+									<input type="text" size="5" name="spek[0]" id="spek0" class="form-control">
 								</div>
 							</td>		
 							<td style="padding : 12px 20px">
@@ -156,79 +135,20 @@
 							</td>		
 							<td style="padding : 12px 20px">
 								<div class="input-group mb-1">
-									<div class="input-group-append">
-										<span class="input-group-text"><b>Rp</b>
-										</span>
-									</div>	
-									<input type="text" size="5" name="jum[0]" id="jum0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0' readonly>
+									<input type="text" size="5" name="moq[0]" id="moq0" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0' >
+										
+								</div>
+								
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="note[0]" id="note0" class="form-control" value='-'>
 										
 								</div>
 								
 							</td>		
 						</tr>
 					</tbody>
-					<tfoot>
-						<tr>
-							<td colspan="5" class="text-right">
-								<label for="total">SUB TOTAL</label>
-							</td>	
-							<td>
-								<div class="input-group mb-1">
-									<div class="input-group-append">
-										<span class="input-group-text"><b>Rp</b>
-										</span>
-									</div>		
-									<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
-								</div>
-								
-							</td>	
-						</tr>
-						<tr>
-							<td colspan="5" class="text-right">
-								<label for="total">DISKON</label>
-							</td>	
-							<td>
-								<div class="input-group mb-1">
-									<div class="input-group-append">
-										<span class="input-group-text"><b>Rp</b>
-										</span>
-									</div>		
-									<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0'>
-								</div>
-								
-							</td>	
-						</tr>
-						<tr>
-							<td colspan="5" class="text-right">
-								<label for="total">PPN</label>
-							</td>	
-							<td>
-								<div class="input-group mb-1">
-									<div class="input-group-append">
-										<span class="input-group-text"><b>Rp</b>
-										</span>
-									</div>		
-									<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
-								</div>
-								
-							</td>	
-						</tr>
-						<tr>
-							<td colspan="5" class="text-right">
-								<label for="total">TOTAL</label>
-							</td>	
-							<td>
-								<div class="input-group mb-1">
-									<div class="input-group-append">
-										<span class="input-group-text"><b>Rp</b>
-										</span>
-									</div>		
-									<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
-								</div>
-								
-							</td>	
-						</tr>
-					</tfoot>
 				</table>
 				<div id="add_button" >
 					<!-- <button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
@@ -284,9 +204,9 @@
 							<thead class="color-tabel">
 								<tr>
 									<th class="text-center">NO</th>
-									<th class="text-center">NO PO</th>
-									<th class="text-center">TANGGAL PO</th>
-									<th class="text-center">SUPPLIER</th>
+									<th class="text-center">NO PENAWARAN</th>
+									<th class="text-center">TANGGAL</th>
+									<th class="text-center">KEPADA</th>
 									<th class="text-center">ACC OWNER</th>
 									<th class="text-center">AKSI</th>
 								</tr>
@@ -543,49 +463,49 @@
 
 	function hitung_total()
 	{
-		var diskon        = $("#diskon").val()
-		diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
-		var disk_total    = parseInt(diskon_ok.split('.').join(''));
+		// var diskon        = $("#diskon").val()
+		// diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
+		// var disk_total    = parseInt(diskon_ok.split('.').join(''));
 		
-		var pajak         = $("#pajak").val()
-		var total_hrg_sat = 0
-		for(loop = 0; loop <= rowNum; loop++)
-		{
-			var hrg_sat = $("#hrg_sat"+loop).val()
-			if(hrg_sat=='')
-			{
-				hrg_sat1 = 0;
-			}else{
-				hrg_sat1 = hrg_sat;
-			}
-			var hrg_sat   = parseInt(hrg_sat1.split('.').join(''))
+		// var pajak         = $("#pajak").val()
+		// var total_hrg_sat = 0
+		// for(loop = 0; loop <= rowNum; loop++)
+		// {
+		// 	var hrg_sat = $("#hrg_sat"+loop).val()
+		// 	if(hrg_sat=='')
+		// 	{
+		// 		hrg_sat1 = 0;
+		// 	}else{
+		// 		hrg_sat1 = hrg_sat;
+		// 	}
+		// 	var hrg_sat   = parseInt(hrg_sat1.split('.').join(''))
 			
-			var qty = $("#qty"+loop).val()
-			if(qty=='')
-			{
-				qty1 = 0;
-			}else{
-				qty1 = qty;
-			}
-			var qty   = parseInt(qty1.split('.').join(''))
+		// 	var qty = $("#qty"+loop).val()
+		// 	if(qty=='')
+		// 	{
+		// 		qty1 = 0;
+		// 	}else{
+		// 		qty1 = qty;
+		// 	}
+		// 	var qty   = parseInt(qty1.split('.').join(''))
 			
-			total_hrg_sat += hrg_sat*qty;			
-			$("#jum"+loop).val(format_angka(total_hrg_sat))
-		}		
-		total_hrg_sat_ok = (total_hrg_sat=='' || isNaN(total_hrg_sat) || total_hrg_sat == null) ? 0 : total_hrg_sat
+		// 	total_hrg_sat += hrg_sat*qty;			
+		// 	$("#jum"+loop).val(format_angka(total_hrg_sat))
+		// }		
+		// total_hrg_sat_ok = (total_hrg_sat=='' || isNaN(total_hrg_sat) || total_hrg_sat == null) ? 0 : total_hrg_sat
 		
-		if(pajak=='PPN')
-		{
-			var ppn_total    = (total_hrg_sat_ok *0.11).toFixed(0);
-		}else{
-			var ppn_total   = 0
-		}
+		// if(pajak=='PPN')
+		// {
+		// 	var ppn_total    = (total_hrg_sat_ok *0.11).toFixed(0);
+		// }else{
+		// 	var ppn_total   = 0
+		// }
 		
-		var total_all     = parseInt(total_hrg_sat_ok)-parseInt(disk_total)+parseInt(ppn_total)
+		// var total_all     = parseInt(total_hrg_sat_ok)-parseInt(disk_total)+parseInt(ppn_total)
 		
-		$("#disk_total").val(format_angka(disk_total))
-		$("#pajak_total").val(format_angka(ppn_total))
-		$("#total_all").val(format_angka(total_all))
+		// $("#disk_total").val(format_angka(disk_total))
+		// $("#pajak_total").val(format_angka(ppn_total))
+		// $("#total_all").val(format_angka(total_all))
 		
 	}
 
@@ -604,7 +524,7 @@
 			"pageLength": true,
 			"paging": true,
 			"ajax": {
-				"url": '<?php echo base_url('Transaksi/load_data/po')?>',
+				"url": '<?php echo base_url('Transaksi/load_data/penawaran')?>',
 				"type": "POST",
 			},
 			"aLengthMenu": [
@@ -1139,16 +1059,14 @@
 
 	function simpan() 
 	{
-		var id_header_po    = $("#id_header_po").val();
-		var no_po           = $("#no_po").val();
-		var terms           = $("#terms").val();
-		var tgl_po          = $("#tgl_po").val();
-		var fob             = $("#fob").val();
-		var supp            = $("#supp").val();
-		var tgl_minta       = $("#tgl_minta").val();
-		var cttn            = $("#cttn").val();
+		var id_header_penawaran   = $("#id_header_penawaran").val();
+		var hal                   = $("#hal").val();
+		var tgl_tawar             = $("#tgl_tawar").val();
+		var kpd                   = $("#kpd").val();
+		var ket                   = $("#ket").val();
+		var alamat                = $("#alamat").val();		
 		
-		if ( no_po == '' || terms == '' || tgl_po == '' || fob == '' || supp == '' || tgl_minta == '' || cttn == '' ) 
+		if ( hal  == '' || tgl_tawar  == '' || kpd  == '' || ket  == '' || alamat  == '' ) 
 		{
 			swal({
 				title               : "Cek Kembali",
@@ -1160,7 +1078,7 @@
 		}
 
 		$.ajax({
-			url        : '<?= base_url(); ?>Transaksi/Insert_po',
+			url        : '<?= base_url(); ?>Transaksi/Insert_penawaran',
 			type       : "POST",
 			data       : $('#myForm').serialize(),
 			dataType   : "JSON",
