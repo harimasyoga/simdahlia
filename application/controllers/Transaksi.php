@@ -59,6 +59,15 @@ class Transaksi extends CI_Controller
 		$this->load->view('footer');
 	}
 
+	public function Penawaran_harga()
+	{
+		$data = array(
+			'judul' => "PENAWARAN HARGA",
+		);
+		$this->load->view('header', $data);
+		$this->load->view('Transaksi/v_tawar');
+		$this->load->view('footer');
+	}
 
 	function load_produk()
     {
@@ -526,6 +535,13 @@ class Transaksi extends CI_Controller
            
             </table><br>';
 
+			$html .='<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+
+			<tr style="border:none"><td >Dengan Hormat,</td></tr>
+			<tr style="border:none"><td >Mohon Kirimkan kepada kami barang - barang sebagai berikut : </td></tr>
+			<tr style="border:none"><td >&nbsp;</td></tr>
+			</table>';
+
 			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
                         <tr style="background-color: #cccccc">
 							<th align="center">NO</th>
@@ -631,6 +647,25 @@ class Transaksi extends CI_Controller
             </tr>
            
             </table><br>';
+
+			$html .='<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+
+			<tr style="border:none"><td >Ket :</td></tr>
+			<tr style="border:none"><td >*PPN akan muncul jika harga ber-PPN </td></tr>
+			<tr style="border:none"><td >&nbsp;</td></tr>
+			</table>';
+			
+			$html .='<table width="100%" border="0" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+
+			<tr >
+				<td >Lembar ke :</td>
+				<td >1 . Supplier</td>
+				<td >2. Bagian Akuntansi</td>
+				<td >3. Bagian Pembelian</td>
+				<td >4. Bagian Gudang</td>
+			</tr>
+			</table>';
+
 			
 		} else {
 			$html .= '<h1> Data Kosong </h1>';
@@ -638,7 +673,7 @@ class Transaksi extends CI_Controller
 
 		// echo $html;
 		// $this->m_fungsi->_mpdf($html);
-		$this->m_fungsi->template_kop('PO',$no_po,$html,'P','1');
+		$this->m_fungsi->template_kop('ORDER PEMBELIAN',$no_po,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 	}
 

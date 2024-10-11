@@ -56,3 +56,4 @@ $route['translate_uri_dashes'] = FALSE;
 
 // Transaksi
 $route['6gysyUJEkMIg2kY'] = 'Transaksi/PO';
+$route['uf5KHvFYmHaK56u'] = 'Transaksi/Penawaran_harga';
