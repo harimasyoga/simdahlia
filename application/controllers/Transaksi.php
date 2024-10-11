@@ -571,27 +571,66 @@ class Transaksi extends CI_Controller
 			$total_all     = $total_nominal - $data->diskon + $ppn_total - $pph_total;
 
 			$html .='<tr style="">
-						<td align="right" colspan="5"><b>Sub Total</b></td>
+						<td align="left" style="border:none" colspan="3"><b>&nbsp;</b></td>
+
+						<td align="right" colspan="2" ><b>Sub Total</b></td>
 						<td align="right" ><b>' . number_format($nominal_all, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
-						<td align="right" colspan="5"><b>Diskon</b></td>
+						<td align="left" style="border:none" colspan="3"><b>Catatan Tambahan :</b></td>
+				
+						<td align="right" colspan="2"><b>Diskon</b></td>
 						<td align="right" ><b>' . number_format($data->diskon, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
-						<td align="right" colspan="5"><b>PPN</b></td>
+						<td align="left" rowspan="2" style="border:none" colspan="3"><b>'.$data->cttn.'</b></td>		
+						<td align="right" colspan="2"><b>PPN</b></td>
 						<td align="right" ><b>' . number_format($ppn_total, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
-						<td align="right" colspan="5"><b>PPH</b></td>
+						<td align="right" colspan="2"><b>PPH</b></td>
 						<td align="right" ><b>' . number_format($pph_total, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
-						<td align="right" colspan="5"><b>Total</b></td>
+						<td align="left" style="border:none" colspan="3"><b>&nbsp;</b></td>
+						<td align="right" colspan="2"><b>Total</b></td>
 						<td align="right" ><b>' . number_format($total_all, 0, ",", ".") . '</b></td>						
-					</tr>';
-			$html .= '
-                 </table>';
+					</tr>
+
+					
+					<tr style="border:none"><td align="right" colspan="6">&nbsp;</td></tr>
+					<tr style="border:none"><td align="right" colspan="6">&nbsp;</td></tr>
+					<tr style="border:none"><td align="right" colspan="6">&nbsp;</td></tr>
+					';
+			$html .= '</table>';
+
+			
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+			<tr>
+                <td width="15%" align="left">&nbsp;</td>
+                <td width="30%" align="right"></td>
+                <td width="10%" >&nbsp;</td>
+                <td width="30%" align="center">Hormat Kami</td>
+                <td width="15%" >&nbsp;</td>
+            </tr>
+			<tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+			<tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+			<tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+			<tr>
+                <td align="left">&nbsp;</td>
+                <td align="center" style="border-top: 1px solid black;">Direksi</td>
+                <td align="left">&nbsp;</td>
+                <td align="center" style="border-top: 1px solid black;">Bagian Pembelian</td>
+                <td >&nbsp;</td>
+            </tr>
+           
+            </table><br>';
 			
 		} else {
 			$html .= '<h1> Data Kosong </h1>';
