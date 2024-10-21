@@ -71,7 +71,7 @@
 
   function ubah_angka(cek,id){
     if(cek==''){
-      $("#"+id).val('')
+      $("#"+id).val(0)
     }else{
       cek1 = cek.split('.').join('')
       hasil= format_angka(parseInt(cek1))

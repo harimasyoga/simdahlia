@@ -23,17 +23,7 @@ class Master extends CI_Controller
 		$this->load->view('home');
 		$this->load->view('footer');
 	}
-	
-	function Customer()
-	{
-		$data = array(
-			'judul' => "Master Customer"
-		);
 
-		$this->load->view('header', $data);
-		$this->load->view('Master/v_customer', $data);
-		$this->load->view('footer');
-	}
 	
 	function Produk()
 	{
@@ -57,6 +47,17 @@ class Master extends CI_Controller
 
 		$this->load->view('header', $data);
 		$this->load->view('Master/v_supplier', $data);
+		$this->load->view('footer');
+	}
+		
+	function Customer()
+	{
+		$data = array(
+			'judul' => "Master Customer"
+		);
+
+		$this->load->view('header', $data);
+		$this->load->view('Master/v_customer', $data);
 		$this->load->view('footer');
 	}
 	
@@ -190,6 +191,16 @@ class Master extends CI_Controller
 		echo json_encode($result);
 	}
 
+	function c_barang()
+	{
+		if($this->session->userdata('username'))
+		{ 
+			$result = $this->m_master->m_brg();
+			echo json_encode($result);
+		}
+		
+	}
+	
 	function load_data()
 	{
 		$jenis = $this->uri->segment(3);

@@ -171,9 +171,8 @@ class Transaksi extends CI_Controller
 
 		if ($jenis == "po") 
 		{						
-			$query = $this->db->query("SELECT*FROM po_header a 
-			join po_detail b on a.no_po=b.no_po
-			ORDER BY a.tgl_po,b.id_po_det")->result();
+			$query = $this->db->query("SELECT*FROM po_header
+			ORDER BY tgl_po")->result();
 
 			$i               = 1;
 			foreach ($query as $r) 
@@ -305,9 +304,8 @@ class Transaksi extends CI_Controller
 			}
 		}else if ($jenis == "penawaran") 
 		{						
-				$query = $this->db->query("SELECT*FROM penawaran_header a 
-				join penawaran_detail b on a.no_penawaran=b.no_penawaran
-				ORDER BY a.tgl_penawaran,b.id_penawaran_det")->result();
+				$query = $this->db->query("SELECT*FROM penawaran_header
+				ORDER BY tgl_penawaran")->result();
 	
 				$i               = 1;
 				foreach ($query as $r) 
@@ -554,16 +552,60 @@ class Transaksi extends CI_Controller
 		echo json_encode($output);
 	}
 
+	function load_data_1()
+	{
+		$id       = $this->input->post('id');
+		$no       = $this->input->post('no');
+		$jenis    = $this->input->post('jenis');
+
+		if($jenis=='edit_po')
+		{
+			$queryh   = "SELECT*FROM po_header a 
+			join po_detail b on a.no_po=b.no_po
+			where a.no_po = '$no'
+			ORDER BY a.tgl_po,b.id_po_det";
+			
+			$queryd   = "SELECT*FROM po_detail where no_po= '$no'";
+		}else if($jenis=='edit_tawar')
+		{
+			$queryh   = "SELECT*FROM penawaran_header where no_penawaran='$no' ORDER BY tgl_penawaran";
+				
+			$queryd   = "SELECT*FROM penawaran_detail b where no_penawaran='$no' 
+				ORDER BY b.id_penawaran_det";
+		}else if($jenis=='spill')
+		{
+			$queryh   = "SELECT *,IFNULL((select sum(jumlah_bayar) from trs_bayar_inv t
+			where t.no_inv=a.no_invoice
+			group by no_inv),0) jum_bayar FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}else{
+
+			$queryh   = "SELECT*FROM invoice_header a where a.id='$id' and a.no_invoice='$no'";
+			$queryd   = "SELECT*FROM invoice_detail where no_invoice='$no' ORDER BY TRIM(no_surat) ";
+		}
+		
+
+		$header   = $this->db->query($queryh)->row();
+		$detail   = $this->db->query($queryd)->result();
+		$data     = ["header" => $header, "detail" => $detail];
+
+        echo json_encode($data);
+	}
+
 	function hapus()
 	{
-		$jenis   = $_POST['jenis'];
-		$field   = $_POST['field'];
-		$id = $_POST['id'];
+		$jenis    = $_POST['jenis'];
+		$field    = $_POST['field'];
+		$id       = $_POST['id'];
 
-		if ($jenis == "trs_po") {
+		if ($jenis == "po_header") {
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
-			$result = $this->m_master->query("DELETE FROM trs_po_detail WHERE  $field = '$id'");
-		} else {
+			$result = $this->m_master->query("DELETE FROM po_detail WHERE  $field = '$id'");
+		} else if ($jenis == "penawaran_header") {
+			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
+			$result = $this->m_master->query("DELETE FROM penawaran_detail WHERE  $field = '$id'");
+		}else{
 
 			$result = $this->m_master->query("DELETE FROM $jenis WHERE  $field = '$id'");
 		}
@@ -689,7 +731,7 @@ class Transaksi extends CI_Controller
 						<td align="center">' . $no . '</td>
 						<td align="">' . $r->nm_barang . '</td>
 						<td align="">' . $r->ket . '</td>
-						<td align="right">' . number_format($r->qty, 0, ",", ".") . '</td>
+						<td align="right">' . number_format($r->qty, 0, ",", ".") . ' PCS</td>
 						<td align="right">' . number_format($r->hrg_sat, 0, ",", ".") . '</td>
 						<td align="right">' . number_format($r->jum, 0, ",", ".") . '</td>
 					</tr>';
@@ -703,17 +745,14 @@ class Transaksi extends CI_Controller
 			if($data->pajak=='PPN')
 			{
 				$ppn_total    = ROUND($total_nominal *0.11);
-				$pph_total    = 0;
 			}else if($data->pajak=='PPN_PPH')
 			{
 				$ppn_total   = ROUND($total_nominal *0.11);
-				$pph_total   = ROUND($total_nominal *0.02);
 			}else{
 				$ppn_total   = 0;
-				$pph_total   = 0;
 			}
 			
-			$total_all     = $total_nominal - $data->diskon + $ppn_total - $pph_total;
+			$total_all     = $total_nominal - $data->diskon + $ppn_total;
 
 			$html .='<tr style="">
 						<td align="left" style="border:none" colspan="3"><b>&nbsp;</b></td>
@@ -728,13 +767,9 @@ class Transaksi extends CI_Controller
 						<td align="right" ><b>' . number_format($data->diskon, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
-						<td align="left" rowspan="2" style="border:none" colspan="3"><b>'.$data->cttn.'</b></td>		
+						<td align="left" style="border:none" colspan="3"><b>'.$data->cttn.'</b></td>		
 						<td align="right" colspan="2"><b>PPN</b></td>
 						<td align="right" ><b>' . number_format($ppn_total, 0, ",", ".") . '</b></td>						
-					</tr>
-					<tr style="">
-						<td align="right" colspan="2"><b>PPH</b></td>
-						<td align="right" ><b>' . number_format($pph_total, 0, ",", ".") . '</b></td>						
 					</tr>
 					<tr style="">
 						<td align="left" style="border:none" colspan="3"><b>&nbsp;</b></td>
@@ -824,7 +859,7 @@ class Transaksi extends CI_Controller
 		if ($query_header->num_rows() > 0) 
 		{
 
-			$html .= "<table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
+			$html .= "<table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:13px; color:#000;\" width=\"100%\"  border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">
 			 <thead>
 				<tr><td>&nbsp; </td></tr>
 				<tr><td>&nbsp; </td></tr>
@@ -837,13 +872,13 @@ class Transaksi extends CI_Controller
 				<tr><td>&nbsp;</td></tr>
 			 </table>";
 			
-			 $html .= "<table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" >
+			 $html .= "<table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:13px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" >
 			 <thead>
-				  <tr><td ><b>CV. AUNGERAH ABADI</b></td></tr>
+				  <tr><td ><b>CV. ANUGERAH ABADI</b></td></tr>
 				  <tr><td >&nbsp; </td></tr>
 			 </table>";
 			 
-			 $html .= "<table style=\"border-collapse:collapse;font-family: Century Gothic; font-size:12px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" >
+			 $html .= "<table style=\"border-collapse:collapse;font-family: Arial,Century Gothic; font-size:13px; color:#000;\" width=\"100%\"  border=\"\" cellspacing=\"0\" cellpadding=\"0\" >
 			 <thead>
 				  <tr>
 					<td width=\"50%\">Surakarta, ".$this->m_fungsi->tanggal_format_indonesia($data->tgl_penawaran) ."</td>
@@ -868,8 +903,8 @@ class Transaksi extends CI_Controller
 				  <tr><td >&nbsp; </td><td></td></tr>
 			 </table>";
 			
-			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
-                        <tr style="background-color: #cccccc">
+			$html .= '<table width="100%" border="1" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:13px;font-family: Arial,Century Gothic;">
+                        <tr style="background-color: #f8bf00">
 							<th align="center">NO</th>
 							<th align="center">Nama barang</th>
 							<th align="center">Spesifikasi</th>
@@ -947,14 +982,19 @@ class Transaksi extends CI_Controller
 					<tr style="border:none"><td align="right" colspan="6">&nbsp;</td></tr>
 			</table>';
 
-			
-			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+			$kett = str_replace("\r\n","<br>",$data->ket);
+
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:13px;font-family: Arial;">
 			<tr> <td align="left">Keterangan :</td> </tr>
-			<tr style="border:none" > <td align="left"><textarea rows="4" cols="50">'.$data->ket.'</textarea></td> </tr>
+			<tr> 
+				<td align="left">
+				'.$kett.'
+				</td> 
+			</tr>
            
             </table><br>';
 
-			$html .='<table width="100%" border="0" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:12px;font-family: ;">
+			$html .='<table width="100%" border="0" cellspacing="1" cellpadding="3" style="border-collapse:collapse;font-size:13px;font-family: ;">
 
 			<tr style="border:none"><td >Demikian penawaran harga dari kami,kabar selanjutnya dari bapak/ibu kami tunggu
 Terimakasih.</td></tr>
@@ -962,32 +1002,27 @@ Terimakasih.</td></tr>
 			</table>';
 			
 			
-			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:12px;font-family: ;">
+			$html .= '<table width="100%" border="0" cellspacing="0" style="font-size:13px;font-family: Arial;">
 			<tr>
-                <td width="15%" align="left">&nbsp;</td>
-                <td width="30%" align="center">Hormat Kami</td>
-                <td width="10%" >&nbsp;</td>
-                <td width="30%" align="center"></td>
-                <td width="15%" >&nbsp;</td>
+                <td width="5%" align="left">&nbsp;</td>
+                <td width="20%" align="center">Hormat Kami</td>
+                <td width="75%" >&nbsp;</td>
             </tr>
 			<tr>
-                <td colspan="5">&nbsp;</td>
+                <td colspan="3">&nbsp;</td>
             </tr>
 			<tr>
-                <td colspan="5">&nbsp;</td>
+                <td colspan="1">&nbsp;</td>
+                <td align="center"><img src="' . base_url() . 'assets/gambar/STAMPEL.png"  width="80" height="70" /></td>
+                <td colspan="3">&nbsp;</td>
             </tr>
 			<tr>
-                <td colspan="5">&nbsp;</td>
-            </tr>
-			<tr>
-                <td colspan="5">&nbsp;</td>
-            </tr>
+                <td colspan="3">&nbsp;</td>
+            </tr> 
 			<tr>
                 <td align="left">&nbsp;</td>
                 <td align="center" style="border-top: 1px solid black;">T. Agung R</td>
                 <td align="left">&nbsp;</td>
-                <td align="center" style=""></td>
-                <td >&nbsp;</td>
             </tr>
            
             </table><br>';
@@ -1002,7 +1037,7 @@ Terimakasih.</td></tr>
 		// $this->m_fungsi->template_kop('PENAWARAN HARGA',$no_penawaran,$html,'P','1');
 		// $this->m_fungsi->mPDFP($html);
 
-		$judul          = 'PENAWARAN HARGA';
+		$judul          = 'PENAWARAN HARGA '.$this->m_fungsi->tanggal_format_indonesia($data->tgl_penawaran);
 		$position       = 'P';
 		$cekpdf         = 1;
 
@@ -1013,7 +1048,7 @@ Terimakasih.</td></tr>
 				break;
 
 			case 1;
-				$this->m_fungsi->_mpdf_hari($position, 'A4', $judul, $html, 'PENAWARAN HARGA.pdf', 5, 5, 5, 10);
+				$this->m_fungsi->_mpdf_hari($position, 'A4', $judul, $html, 'PENAWARAN HARGA.pdf', 10, 10, 5, 10);
 			
 
 

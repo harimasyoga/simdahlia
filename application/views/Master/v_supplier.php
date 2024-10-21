@@ -89,9 +89,23 @@
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">JATUH TEMPO</label>
+						<label class="col-sm-2 col-form-label">TOP</label>
 						<div class="col-sm-10">
 							<input type="text" class="angka form-control" id="jt" placeholder="JATUH TEMPO" autocomplete="off" >
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">NPWP</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="npwp" placeholder="NPWP" autocomplete="off" >
+						</div>
+					</div>
+					
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">NO REK</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="norek" placeholder="NO REK" autocomplete="off" >
 						</div>
 					</div>
 			</div>
@@ -161,8 +175,11 @@
 		alamat        = $("#alamat").val();
 		no_hp         = $("#no_hp").val();
 		jt            = $("#jt").val();
+		npwp          = $("#npwp").val();
+		norek         = $("#norek").val();
 
-		if ( nm_supp == "" || alamat == "" || no_hp == "" || jt == "") {
+		if ( nm_supp == "" || alamat == "" || no_hp == "" || jt == "" || npwp == "" || norek =="") 
+		{
 			swal("HARAP LENGKAPI FORM!", "", "info")
 			$("#btn-simpan").prop("disabled", false);
 			return;
@@ -182,7 +199,7 @@
 				});
 			},
 			data: ({
-				 id_supp ,nm_supp,alamat,no_hp,jt,nm_supp_old,jenis: 'm_supplier',status: status
+				 id_supp ,nm_supp,alamat,no_hp,jt,npwp,norek,nm_supp_old,jenis: 'm_supplier',status: status
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
@@ -212,6 +229,8 @@
 		$("#alamat").val("");			
 		$("#no_hp").val("");			
 		$("#jt").val("");			
+		$("#npwp").val("");			
+		$("#norek").val("");			
 		status = 'insert';
 		$("#btn-simpan").show().prop("disabled", false);
 	}
@@ -256,6 +275,8 @@
 			$("#alamat").val(data.supp.alamat);
 			$("#no_hp").val(data.supp.no_hp);
 			$("#jt").val(data.supp.jt);
+			$("#npwp").val(data.supp.npwp);
+			$("#norek").val(data.supp.norek);
 			swal.close()
 		})
 	}
