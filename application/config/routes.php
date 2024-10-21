@@ -53,7 +53,10 @@ $route['default_controller'] = 'Login';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-
+// Master
+$route['SaVEWg8xlMZ1KZa'] = 'Master/Supplier';
+$route['vLQls9LaUY5hggr'] = 'Master/Customer';
+$route['GSwHovRiGwQML91'] = 'Master/Barang';
 // Transaksi
 $route['6gysyUJEkMIg2kY'] = 'Transaksi/PO';
 $route['uf5KHvFYmHaK56u'] = 'Transaksi/Penawaran_harga';

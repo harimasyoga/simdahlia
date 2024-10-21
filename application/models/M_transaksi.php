@@ -91,6 +91,9 @@ class M_transaksi extends CI_Model
 				'supp'          => $this->input->post('supp'),
 				'tgl_minta'     => $this->input->post('tgl_minta'),
 				'cttn'          => $this->input->post('cttn'),
+				'diskon'        => str_replace('.','',$this->input->post('disk_total')),
+				'ppn'           => $this->input->post('ppn'),
+				'pajak'         => str_replace('.','',$this->input->post('pajak_total')),
 				'acc_owner'     => 'N',
 				'add_user' 		=> $this->username,
 				'add_time' 		=> date("Y:m:d H:i:s"),
@@ -102,32 +105,38 @@ class M_transaksi extends CI_Model
 			$rowloop     = $this->input->post('bucket');
 			for($loop = 0; $loop <= $rowloop; $loop++)
 			{
-				$data_detail = array(				
-					'no_po'    => $m_no_inv,
-					'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
-					'ket'            => $this->input->post('ket['.$loop.']'),
-					'qty'            => str_replace('.','',$this->input->post('qty['.$loop.']')),
-					'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
-					'jum'            => str_replace('.','',$this->input->post('jum['.$loop.']')),
-				);
-
-				$result_detail = $this->db->insert('po_detail', $data_detail);
+				if($this->input->post('nm_barang['.$loop.']'))
+				{
+					$data_detail = array(				
+						'no_po'    => $m_no_inv,
+						'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
+						'ket'            => $this->input->post('ket['.$loop.']'),
+						'qty'            => str_replace('.','',$this->input->post('qty['.$loop.']')),
+						'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
+						'jum'            => str_replace('.','',$this->input->post('jum['.$loop.']')),
+					);
+	
+					$result_detail = $this->db->insert('po_detail', $data_detail);
+				}
 			}		
 
 			return $result_detail;
 			
 		}else{
 			
-			$no_inv_beli    = $this->input->post('no_inv_beli');
+			$no_po    = $this->input->post('no_po');
 
 			$data_header = array(
-				'no_po'   		=> $no_inv_beli,
+				'no_po'   		=> $no_po,
 				'terms'         => $this->input->post('terms'),
 				'tgl_po'        => $this->input->post('tgl_po'),
 				'fob'           => $this->input->post('fob'),
 				'supp'          => $this->input->post('supp'),
 				'tgl_minta'     => $this->input->post('tgl_minta'),
 				'cttn'          => $this->input->post('cttn'),
+				'diskon'        => str_replace('.','',$this->input->post('disk_total')),
+				'ppn'           => $this->input->post('ppn'),
+				'pajak'         => str_replace('.','',$this->input->post('pajak_total')),
 				'acc_owner'     => 'N',
 				'add_user' 		=> $this->username,
 				'add_time' 		=> date("Y:m:d H:i:s"),
@@ -145,16 +154,20 @@ class M_transaksi extends CI_Model
 				$rowloop     = $this->input->post('bucket');
 				for($loop = 0; $loop <= $rowloop; $loop++)
 				{
-					$data_detail = array(				
-						'no_po'    => $m_no_inv,
-						'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
-						'ket'            => $this->input->post('ket['.$loop.']'),
-						'qty'            => str_replace('.','',$this->input->post('qty['.$loop.']')),
-						'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
-						'jum'            => str_replace('.','',$this->input->post('jum['.$loop.']')),
-					);
-	
-					$result_detail = $this->db->insert('po_detail', $data_detail);
+					if($this->input->post('nm_barang['.$loop.']'))
+					{
+
+						$data_detail = array(				
+							'no_po'    		 => $no_po,
+							'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
+							'ket'            => $this->input->post('ket['.$loop.']'),
+							'qty'            => str_replace('.','',$this->input->post('qty['.$loop.']')),
+							'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
+							'jum'            => str_replace('.','',$this->input->post('jum['.$loop.']')),
+						);
+		
+						$result_detail = $this->db->insert('po_detail', $data_detail);
+					}
 				}		
 				return $result_detail;
 			}
@@ -193,26 +206,29 @@ class M_transaksi extends CI_Model
 			$rowloop     = $this->input->post('bucket');
 			for($loop = 0; $loop <= $rowloop; $loop++)
 			{
-				$data_detail = array(	
-					'no_penawaran'    => $m_no_inv,
-					'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
-					'spek'            => $this->input->post('spek['.$loop.']'),
-					'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
-					'moq'            => str_replace('.','',$this->input->post('moq['.$loop.']')),
-					'note'            => $this->input->post('note['.$loop.']'),
-				);
-
-				$result_detail = $this->db->insert('penawaran_detail', $data_detail);
+				if($this->input->post('nm_barang['.$loop.']'))
+				{
+					$data_detail = array(	
+						'no_penawaran'    => $m_no_inv,
+						'nm_barang'       => $this->input->post('nm_barang['.$loop.']'),
+						'spek'            => $this->input->post('spek['.$loop.']'),
+						'hrg_sat'         => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
+						'moq'             => str_replace('.','',$this->input->post('moq['.$loop.']')),
+						'note'            => $this->input->post('note['.$loop.']'),
+					);
+	
+					$result_detail = $this->db->insert('penawaran_detail', $data_detail);
+				}
 			}		
 
 			return $result_detail;
 			
 		}else{
 			
-			$no_inv_beli    = $this->input->post('no_inv_beli');
+			$no_penawaran    = $this->input->post('no_penawaran');
 
 			$data_header = array(
-				'no_penawaran'  => $m_no_inv,
+				'no_penawaran'  => $no_penawaran,
 				'hal'         	=> $this->input->post('hal'),
 				'tgl_penawaran' => $this->input->post('tgl_tawar'),
 				'kpd'         	=> $this->input->post('kpd'),
@@ -227,7 +243,7 @@ class M_transaksi extends CI_Model
 			$result_header = $this->db->update('penawaran_header', $data_header);
 	
 			// delete rinci
-			$del_detail = $this->db->query("DELETE FROM penawaran_detail where no_po='$no_po' ");
+			$del_detail = $this->db->query("DELETE FROM penawaran_detail where no_penawaran='$no_penawaran' ");
 
 			// rinci
 			if($del_detail)
@@ -235,16 +251,20 @@ class M_transaksi extends CI_Model
 				$rowloop     = $this->input->post('bucket');
 				for($loop = 0; $loop <= $rowloop; $loop++)
 				{
-					$data_detail = array(				
-						'no_po'    => $m_no_inv,
-						'nm_barang'      => $this->input->post('nm_barang['.$loop.']'),
-						'spek'            => $this->input->post('spek['.$loop.']'),
-						'hrg_sat'        => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
-						'moq'            => str_replace('.','',$this->input->post('moq['.$loop.']')),
-						'note'            => $this->input->post('note['.$loop.']'),
-					);
-	
-					$result_detail = $this->db->insert('penawaran_detail', $data_detail);
+					if($this->input->post('nm_barang['.$loop.']'))
+					{
+						
+						$data_detail = array(				
+							'no_penawaran'    => $no_penawaran,
+							'nm_barang'       => $this->input->post('nm_barang['.$loop.']'),
+							'spek'            => $this->input->post('spek['.$loop.']'),
+							'hrg_sat'         => str_replace('.','',$this->input->post('hrg_sat['.$loop.']')),
+							'moq'             => str_replace('.','',$this->input->post('moq['.$loop.']')),
+							'note'            => $this->input->post('note['.$loop.']'),
+						);
+		
+						$result_detail = $this->db->insert('penawaran_detail', $data_detail);
+					}
 				}		
 				return $result_detail;
 			}

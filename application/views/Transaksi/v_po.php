@@ -87,11 +87,18 @@
 			</div>
 			
 			<div class="card-body row" style="padding-bottom:1px;font-weight:bold">			
-			<div class="col-md-2">Catatan Tambahan</div>
+				<div class="col-md-2">Catatan Tambahan</div>
 				<div class="col-md-3">
 					<textarea type="text" class="form-control" name="cttn" id="cttn" ></textarea>
 				</div>
-				<div class="col-md-6"></div>
+				<div class="col-md-1"></div>
+				<div class="col-md-2">PPN</div>
+				<div class="col-md-3">
+					<select name="ppn" id="ppn" class="form-control select2" onchange="hitung_total()" >
+						<option value="YA">YA</option>
+						<option value="TIDAK">TIDAK</option>
+					</select>
+				</div>
 			</div>
 			<br>
 			
@@ -193,14 +200,14 @@
 										<span class="input-group-text"><b>Rp</b>
 										</span>
 									</div>		
-									<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0'>
+									<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0' onkeyup="ubah_angka(this.value,this.id),hitung_total()">
 								</div>
 								
 							</td>	
 						</tr>
 						<tr>
 							<td colspan="5" class="text-right">
-								<label for="total">PPN</label>
+								<label for="total">PPN 11%</label>
 							</td>	
 							<td>
 								<div class="input-group mb-1">
@@ -231,8 +238,8 @@
 					</tfoot>
 				</table>
 				<div id="add_button" >
-					<!-- <button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
-					<input type="hidden" name="bucket" id="bucket" value="0"> -->
+					<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
+					<input type="hidden" name="bucket" id="bucket" value="0">
 				</div>
 				<br>
 			</div>
@@ -355,97 +362,6 @@
 		
 	}
 
-	function jenis_beban(rowNum) 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Transaksi/load_jenis_beban",
-			// data       : { idp: pelanggan, kd: '' },
-			dataType   : 'json',
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success"){					
-					option = `<option value="">-- Pilih --</option>`;	
-
-					$.each(data.data, function(index, val) {
-					option += `<option value="${val.kd}" data-nm="${val.nm}" >${val.nm}</option>`;
-
-					});
-
-					$('#jns_beban'+rowNum).html(option);
-					$('.select2').select2({
-						containerCssClass: "wrap",
-						placeholder: '--- Pilih ---',
-						dropdownAutoWidth: true
-					});
-					swal.close();
-				}else{	
-					option += "<option value=''></option>";
-					$('#jns_beban'+rowNum).html(option);					
-					swal.close();
-				}
-			}
-		});
-	}
-	
-	function jenis_beban2(rowNum,jns_beban) 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Transaksi/load_jenis_beban",
-			// data       : { idp: pelanggan, kd: '' },
-			dataType   : 'json',
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success"){					
-					option = `<option value="">-- Pilih --</option>`;	
-
-					$.each(data.data, function(index, val) {
-					if(val.kd==jns_beban)
-					{
-						option += `<option value="${val.kd}" selected data-nm="${val.nm}" >${val.nm}</option>`;
-					}else{
-						option += `<option value="${val.kd}" data-nm="${val.nm}" >${val.nm}</option>`;
-					}
-
-					});
-
-					$('#jns_beban'+rowNum).html(option);
-					$('.select2').select2({
-						containerCssClass: "wrap",
-						placeholder: '--- Pilih ---',
-						dropdownAutoWidth: true
-					});
-					swal.close();
-				}else{	
-					option += "<option value=''></option>";
-					$('#jns_beban'+rowNum).html(option);					
-					swal.close();
-				}
-			}
-		});
-	}
-	
 	function addRow() 
 	{
 		var b = $('#bucket').val();
@@ -454,11 +370,12 @@
 			b = 0;
 			rowNum = 0;
 		}
+		var nm_barang   = $('#nm_barang' + b).val();
 		var ket         = $('#ket' + b).val();
-		var jns_beban   = $('#jns_beban' + b).val();
-		var nominal     = $('#nominal' + b).val();
+		var qty         = $('#qty' + b).val();
+		var hrg_sat     = $('#hrg_sat' + b).val();
 			
-		if (nominal != '0' && nominal != '' && jns_beban != '' && ket != '') 
+		if (nm_barang != '' && ket != '' && qty != 0 && hrg_sat != 0) 
 		{			
 			rowNum++;
 			var x = rowNum + 1;
@@ -472,16 +389,24 @@
 								</a>
 							</div>
 						</td>
-						<td style="padding : 12px 20px">
-							<div class="input-group mb-1">
-								<input type="text" size="5" name="transaksi[${ rowNum }]" id="transaksi${ rowNum }" class="form-control">
-							</div>
-						</td>		
 
 						<td style="padding : 12px 20px">
 							<div class="input-group mb-1">
-								<select name="jns_beban[${ rowNum }]"  id="jns_beban${ rowNum }" class="form-control select2" style="width: 100%">
-								</select>	
+								<input type="text" size="5" name="nm_barang[${ rowNum }]" id="nm_barang${ rowNum }"  class= "form-control" value='' >
+							</div>
+						</td>		
+						<td style="padding : 12px 20px">
+							<div class="input-group mb-1">
+								<input type="text" size="5" name="ket[${ rowNum }]" id="ket${ rowNum }" class="form-control" value=''>
+							</div>
+						</td>		
+						<td style="padding : 12px 20px">
+							<div class="input-group mb-1">
+								<input type="text" size="5" name="qty[${ rowNum }]" id="qty${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>	
+								<div class="input-group-append">
+									<span class="input-group-text"><b>PCS</b>
+									</span>
+								</div>	
 							</div>
 						</td>		
 						<td style="padding : 12px 20px">
@@ -490,14 +415,21 @@
 									<span class="input-group-text"><b>Rp</b>
 									</span>
 								</div>	
-								<input type="text" size="5" name="nominal[${ rowNum }]" id="nominal${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+								<input type="text" size="5" name="hrg_sat[${ rowNum }]" id="hrg_sat${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+							</div>
+						</td>		
+						<td style="padding : 12px 20px">
+							<div class="input-group mb-1">
+								<div class="input-group-append">
+									<span class="input-group-text"><b>Rp</b>
+									</span>
+								</div>	
+								<input type="text" size="5" name="jum[${ rowNum }]" id="jum${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0' readonly>
 									
 							</div>
 							
 						</td>		
-					</tr>
-					`);
-				jenis_beban(rowNum);
+					</tr>`);
 				$('#bucket').val(rowNum);
 				$('#list' + rowNum).focus();
 		}else{
@@ -543,11 +475,11 @@
 
 	function hitung_total()
 	{
-		var diskon        = $("#diskon").val()
-		diskon_ok         = (diskon=='' || isNaN(diskon) || diskon == null) ? '0' : diskon;
+		var diskon        = $("#disk_total").val()
+		diskon_ok         = (diskon=='' || diskon == null) ? '0' : diskon;
 		var disk_total    = parseInt(diskon_ok.split('.').join(''));
 		
-		var pajak         = $("#pajak").val()
+		var ppn           = $("#ppn").val()
 		var total_hrg_sat = 0
 		for(loop = 0; loop <= rowNum; loop++)
 		{
@@ -568,22 +500,22 @@
 				qty1 = qty;
 			}
 			var qty   = parseInt(qty1.split('.').join(''))
-			
-			total_hrg_sat += hrg_sat*qty;			
-			$("#jum"+loop).val(format_angka(total_hrg_sat))
+			total_hrg_sat += hrg_sat*qty;	
+			$("#jum"+loop).val(format_angka(hrg_sat*qty))
 		}		
 		total_hrg_sat_ok = (total_hrg_sat=='' || isNaN(total_hrg_sat) || total_hrg_sat == null) ? 0 : total_hrg_sat
 		
-		if(pajak=='PPN')
+		if(ppn=='YA')
 		{
 			var ppn_total    = (total_hrg_sat_ok *0.11).toFixed(0);
 		}else{
 			var ppn_total   = 0
 		}
 		
+		var total_nom     = parseInt(total_hrg_sat_ok)
 		var total_all     = parseInt(total_hrg_sat_ok)-parseInt(disk_total)+parseInt(ppn_total)
 		
-		$("#disk_total").val(format_angka(disk_total))
+		$("#total_nom").val(format_angka(total_nom))
 		$("#pajak_total").val(format_angka(ppn_total))
 		$("#total_all").val(format_angka(total_all))
 		
@@ -630,7 +562,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Transaksi/load_data_1',
 			type       : "POST",
-			data       : { id, jenis :'edit_inv_beli' },
+			data       : { no:no_po, jenis :'edit_po' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -645,14 +577,15 @@
 			success: function(data) {
 				if(data){
 					// header
-					$("#id_header_beli").val(data.header.id_header_beli);
-					$("#no_inv_beli").val(data.header.no_inv_beli);
-					$("#id_hub").val(data.header.id_hub).trigger('change');
-					$("#id_supp").val(data.header.id_supp).trigger('change');
-					$("#tgl_inv").val(data.header.tgl_inv_beli);
-					$("#pajak").val(data.header.pajak);
-					$("#ket").val(data.header.ket);
-					$("#diskon").val(format_angka(data.header.diskon));	
+					$("#id_header_po").val(data.header.id_header_po);
+					$("#no_po").val(data.header.no_po);
+					$("#ppn").val(data.header.ppn).trigger('change');
+					$("#terms").val(data.header.terms).trigger('change');
+					$("#tgl_po").val(data.header.tgl_po).trigger('change');
+					$("#fob").val(data.header.fob);
+					$("#supp").val(data.header.supp);
+					$("#tgl_minta").val(data.header.tgl_minta);
+					$("#cttn").val(data.header.cttn);	
 					
 					swal.close();
 					// detail
@@ -662,132 +595,139 @@
 							<thead class="color-tabel">
 								<tr>
 									<th id="header_del">Delete</th>
-									<th style="padding : 12px 50px">Transaksi</th>
-									<th style="padding : 12px 70px" >Jenis Beban</th>
-									<th style="padding : 12px 50px" >Nominal</th>
+									<th style="padding : 12px 50px">Nama Barang</th>
+									<th style="padding : 12px 70px" >Keterangan</th>
+									<th style="padding : 12px 70px" >Qty</th>
+									<th style="padding : 12px 50px" >Harga Satuan</th>
+									<th style="padding : 12px 50px" >Jumlah</th>
 								</tr>
 							</thead>`;
 						
 					var no   = 0;
 					$.each(data.detail, function(index, val) {
 						
-						jenis_beban2(no,val.jns_beban)	
 						list += `
-							<tr id="itemRow${ no }">
-								<td id="detail-hapus-${ no }">
-									<div class="text-center">
-										<a class="btn btn-danger" id="btn-hapus-${ no }" onclick="removeRow(${ no })">
-											<i class="far fa-trash-alt" style="color:#fff"></i> 
-										</a>
-									</div>
-								</td>
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<input type="text" size="5" name="transaksi[${ no }]" id="transaksi${ no }" class="form-control" value="${(val.transaksi)}">
-									</div>
-								</td>		
+							<tbody>
+								<tr id="itemRow${ no }">
+									<td id="detail-hapus-${ no }">
+										<div class="text-center">
+											<a class="btn btn-danger" id="btn-hapus-${ no }" onclick="removeRow(${ no })">
+												<i class="far fa-trash-alt" style="color:#fff"></i> 
+											</a>
+										</div>
+									</td>
 
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<select name="jns_beban[${ no }]"  id="jns_beban${ no }" class="form-control select2" style="width: 100%">
-											<option value="${val.jns_beban}" selected data-nm="${val.nm}" >${val.jns_beban}</option>
-										</select>	
-									</div>
-								</td>		
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<div class="input-group-append">
-											<span class="input-group-text"><b>Rp</b>
-											</span>
-										</div>	
-										<input type="text" size="5" name="nominal[${ no }]" id="nominal${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value="${format_angka(val.nominal)}">
-											
-									</div>
-									
-								</td>		
-							</tr>
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<input type="text" size="5" name="nm_barang[${ no }]" id="nm_barang${ no }"  class= "form-control" value='${(val.nm_barang)}' >
+										</div>
+									</td>		
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<input type="text" size="5" name="ket[${ no }]" id="ket${ no }" class="form-control" value='${(val.ket)}'>
+										</div>
+									</td>		
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<input type="text" size="5" name="qty[${ no }]" id="qty${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='${format_angka((val.qty))}'>	
+											<div class="input-group-append">
+												<span class="input-group-text"><b>PCS</b>
+												</span>
+											</div>	
+										</div>
+									</td>		
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>	
+											<input type="text" size="5" name="hrg_sat[${ no }]" id="hrg_sat${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='${format_angka((val.hrg_sat))}'>
+										</div>
+									</td>		
+									<td style="padding : 12px 20px">
+										<div class="input-group mb-1">
+											<div class="input-group-append">
+												<span class="input-group-text"><b>Rp</b>
+												</span>
+											</div>	
+											<input type="text" size="5" name="jum[${ no }]" id="jum${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='${(val.jum)}' readonly>
+												
+										</div>
+										
+									</td>		
+								</tr>
+							</tbody>
+					
 						`;
 						no ++;
 					})
 					
 					list +=`<tfoot>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">SUB TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPH</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="pph_total" id="pph_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-							</tfoot>`;
-					rowNum = no-1 
+						<tr>
+							<td colspan="5" class="text-right">
+								<label for="total">SUB TOTAL</label>
+							</td>	
+							<td>
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>		
+									<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
+								</div>
+								
+							</td>	
+						</tr>
+						<tr>
+							<td colspan="5" class="text-right">
+								<label for="total">DISKON</label>
+							</td>	
+							<td>
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>		
+									<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='${format_angka(data.header.diskon)}' onkeyup="ubah_angka(this.value,this.id),hitung_total()">
+								</div>
+								
+							</td>	
+						</tr>
+						<tr>
+							<td colspan="5" class="text-right">
+								<label for="total">PPN</label>
+							</td>	
+							<td>
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>		
+									<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
+								</div>
+								
+							</td>	
+						</tr>
+						<tr>
+							<td colspan="5" class="text-right">
+								<label for="total">TOTAL</label>
+							</td>	
+							<td>
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>		
+									<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
+								</div>
+								
+							</td>	
+						</tr>
+					</tfoot>`;
+					rowNum = no-1; 
+					
+					// $("#disk_total").val(format_angka(data.header.diskon));
 					$('#bucket').val(rowNum);					
 					$("#table_list_item").html(list);
 					hitung_total()	
@@ -821,204 +761,7 @@
 		});
 	}
 
-	// MODAL //
-	function open_modal(id,no_invoice) 
-	{		
-		$("#modalForm").modal("show");
-		$("#judul").html('<h3> VERIFIKASI OWNER </h3>');
-		
-		$.ajax({
-			url        : '<?= base_url(); ?>Transaksi/load_data_1',
-			type       : "POST",
-			data       : { id, jenis :'edit_inv_beli' },
-			dataType   : "JSON",
-			beforeSend: function() {
-				swal({
-				title: 'loading data...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success: function(data) {
-				if(data){
-					// header
-					$("#m_id_header_beli").val(data.header.id_header_beli);
-					$("#m_no_inv_beli").val(data.header.no_inv_beli);
-					$("#m_id_hub").val(data.header.nm_hub);
-					$("#m_id_supp").val(data.header.nm_supp);
-					$("#m_tgl_inv").val(data.header.tgl_inv_beli);
-					$("#m_pajak").val(data.header.pajak); 
-					$("#m_ket").val(data.header.ket);
-					$("#m_diskon").val(format_angka(data.header.diskon));	
-					
-					swal.close();
-
-					if(data.header.acc_owner == 'Y')
-					{
-						$("#modal_btn_verif").html(`<button type="button" class="btn btn-success" id="modal_btn_verif" onclick="acc_inv('Y')"><i class="fas fa-lock"></i><b> BATAL VERIFIKASI </b></button>`)
-					}else{
-						$("#modal_btn_verif").html(`<button type="button" class="btn btn-success" id="modal_btn_verif" onclick="acc_inv('N')"><i class="fas fa-check"></i><b> VERIFIKASI </b></button>`)
-
-					}
-					// detail
-
-					var list = `
-						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="m_table_list_item" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th style="padding : 12px 50px">Transaksi</th>
-									<th style="padding : 12px 70px" >Jenis Beban</th>
-									<th style="padding : 12px 50px" >Nominal</th>
-								</tr>
-							</thead>`;
-						
-					var no   = 0;
-					$.each(data.detail, function(index, val) {
-							
-						list += `
-							<tr id="m_itemRow${ no }">
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<input type="text" size="5" name="m_transaksi[${ no }]" id="m_transaksi${ no }" class="form-control" value="${(val.transaksi)}" readonly>
-									</div>
-								</td>		
-
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<input type="text"  name="m_jns_beban[${ no }]" id="m_jns_beban${ no }" class="form-control" value="${(val.nm)}" readonly>
-									</div>
-								</td>		
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<div class="input-group-append">
-											<span class="input-group-text"><b>Rp</b>
-											</span>
-										</div>	
-										<input type="text" size="5" name="m_nominal[${ no }]" id="m_nominal${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),m_hitung_total()" value="${format_angka(val.nominal)}" readonly>
-											
-									</div>
-									
-								</td>		
-							</tr>
-						`;
-						no ++;
-					})
-					
-					list +=`<tfoot>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">SUB TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_total_nom" id="m_total_nom" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_disk_total" id="m_disk_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_pajak_total" id="m_pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPH</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_pph_total" id="m_pph_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_total_all" id="m_total_all" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-							</tfoot>`;
-					rowNum = no-1 
-					$('#m_bucket').val(rowNum);					
-					$("#m_table_list_item").html(list);
-					m_hitung_total()	
-					swal.close();
-
-				} else {
-
-					swal.close();
-					swal({
-						title               : "Cek Kembali",
-						html                : "Gagal Simpan",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
-					return;
-				}
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-				
-				swal.close();
-				swal({
-					title               : "Cek Kembali",
-					html                : "Terjadi Kesalahan",
-					type                : "error",
-					confirmButtonText   : "OK"
-				});
-				
-				return;
-			}
-		});
-
-	}
-
+	
 	function acc_inv(no_invoice,status_owner) 
 	{	
 		var user        = "<?= $this->session->userdata('username')?>"
@@ -1118,21 +861,25 @@
 	{
 		$tgl = '<?= date('Y-m-d') ?>'	
 		rowNum = 0
-		$("#id_hub").val('').trigger('change');	
-		$("#id_supp").val('').trigger('change');	
-		$("#pajak").val('').trigger('change');	
-		$("#diskon").val('') 
-		$("#diskon").val('') 
-		$("#ket").val('') 		
-		$("#tgl_inv").val($tgl) 
-		$("#no_inv_beli").val('AUTO') 
+		$("#terms").val('') 		
+		$("#tgl_po").val($tgl) 		
+		$("#fob").val('') 		
+		$("#supp").val('') 		
+		$("#tgl_minta").val($tgl) 		
+		$("#cttn").val('') 		
+		$("#disk_total").val(0) 		
+		$("#ppn").val('YA').trigger('change');	 		
+		$("#pajak_total").val(0) 	
+		$("#no_po").val('AUTO') 
 
-		$("#transaksi0").val('');			
-		$("#jns_beban0").val('').trigger('change');	
-		$("#nominal0").val(0);		
+		$("#nm_barang0").val('');			
+		$("#ket0").val('');			
+		$("#qty0").val(0);			
+		$("#hrg_sat0").val(0);			
+		$("#jum0").val(0);			
 		// load_hub()
 		clearRow()
-		hitung_total()
+		// hitung_total()
 		
 		swal.close()
 	}
@@ -1147,6 +894,7 @@
 		var supp            = $("#supp").val();
 		var tgl_minta       = $("#tgl_minta").val();
 		var cttn            = $("#cttn").val();
+		var bucket            = $("#bucket").val();
 		
 		if ( no_po == '' || terms == '' || tgl_po == '' || fob == '' || supp == '' || tgl_minta == '' || cttn == '' ) 
 		{
@@ -1233,13 +981,13 @@
 		$(".row-list").attr('style', '')
 	}
 
-	function deleteData(id,no_inv_beli) 
+	function deleteData(id,no_po) 
 	{
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "HAPUS PEMBAYARAN",
 			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
-			+"<strong>" +no_inv_beli+ " </strong> ",
+			+"<strong>" +no_po+ " </strong> ",
 			type               : "question",
 			showCancelButton   : true,
 			confirmButtonText  : '<b>Hapus</b>',
@@ -1253,9 +1001,9 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
-					id         : no_inv_beli,
-					jenis      : 'inv_beli',
-					field      : 'no_inv_beli'
+					id         : no_po,
+					jenis      : 'po_header',
+					field      : 'no_po'
 				}),
 				type: "POST",
 				beforeSend: function() {

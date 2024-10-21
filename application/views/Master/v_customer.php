@@ -102,9 +102,9 @@
 						</div>
 					</div>
 					<div class="form-group row">
-						<label class="col-sm-2 col-form-label">KODE POS</label>
+						<label class="col-sm-2 col-form-label">NO REK</label>
 						<div class="col-sm-10">
-							<input type="text" class="angka form-control" id="kode_pos" placeholder="-" autocomplete="off" maxlength="10">
+							<input type="text" class="angka form-control" id="norek" placeholder="-" autocomplete="off" maxlength="10">
 						</div>
 					</div>
 			</div>
@@ -175,7 +175,7 @@
 		alamat      = $("#alamat").val();
 		npwp        = $("#npwp").val();
 		no_telp     = $("#no_telp").val();
-		kode_pos    = $("#kode_pos").val();
+		norek       = $("#norek").val();
 
 		if ( pimpinan == "" || nm_cs == "" || alamat == "" ) {
 			swal("HARAP LENGKAPI FORM!", "", "info")
@@ -197,7 +197,7 @@
 				});
 			},
 			data: ({
-				 id_cs, pimpinan ,nm_cs, nm_cs_old ,alamat ,npwp ,no_telp ,kode_pos, jenis: 'm_customer', status: status
+				 id_cs, pimpinan ,nm_cs, nm_cs_old ,alamat ,npwp ,no_telp ,norek, jenis: 'm_customer', status: status
 			}),
 			success: function(res) {
 				data = JSON.parse(res)
@@ -228,7 +228,7 @@
 		$("#alamat").val("");
 		$("#npwp").val("");
 		$("#no_telp").val("");
-		$("#kode_pos").val("");
+		$("#norek").val("");
 		status = 'insert';
 		$("#btn-simpan").show().prop("disabled", false);
 	}
@@ -274,7 +274,7 @@
 			$("#alamat").val(data.cs.alamat);
 			$("#npwp").val(data.cs.npwp);
 			$("#no_telp").val(data.cs.no_telp);
-			$("#kode_pos").val(data.cs.kode_pos);
+			$("#norek").val(data.cs.no_rek);
 			swal.close()
 		})
 	}

@@ -151,8 +151,8 @@
 					</tbody>
 				</table>
 				<div id="add_button" >
-					<!-- <button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
-					<input type="hidden" name="bucket" id="bucket" value="0"> -->
+					<button type="button" onclick="addRow()" class="btn-tambah-produk btn  btn-success"><b><i class="fa fa-plus" ></i></b></button>
+					<input type="hidden" name="bucket" id="bucket" value="0">
 				</div>
 				<br>
 			</div>
@@ -231,7 +231,6 @@
 		kosong()
 		load_data()
 		// load_supp()
-		// jenis_beban(0)
 		$('.select2').select2();
 	});
 	
@@ -275,97 +274,6 @@
 		
 	}
 
-	function jenis_beban(rowNum) 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Transaksi/load_jenis_beban",
-			// data       : { idp: pelanggan, kd: '' },
-			dataType   : 'json',
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success"){					
-					option = `<option value="">-- Pilih --</option>`;	
-
-					$.each(data.data, function(index, val) {
-					option += `<option value="${val.kd}" data-nm="${val.nm}" >${val.nm}</option>`;
-
-					});
-
-					$('#jns_beban'+rowNum).html(option);
-					$('.select2').select2({
-						containerCssClass: "wrap",
-						placeholder: '--- Pilih ---',
-						dropdownAutoWidth: true
-					});
-					swal.close();
-				}else{	
-					option += "<option value=''></option>";
-					$('#jns_beban'+rowNum).html(option);					
-					swal.close();
-				}
-			}
-		});
-	}
-	
-	function jenis_beban2(rowNum,jns_beban) 
-	{
-		option = "";
-		$.ajax({
-			type       : 'POST',
-			url        : "<?= base_url(); ?>Transaksi/load_jenis_beban",
-			// data       : { idp: pelanggan, kd: '' },
-			dataType   : 'json',
-			beforeSend: function() {
-				swal({
-				title: 'loading ...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success:function(data){			
-				if(data.message == "Success"){					
-					option = `<option value="">-- Pilih --</option>`;	
-
-					$.each(data.data, function(index, val) {
-					if(val.kd==jns_beban)
-					{
-						option += `<option value="${val.kd}" selected data-nm="${val.nm}" >${val.nm}</option>`;
-					}else{
-						option += `<option value="${val.kd}" data-nm="${val.nm}" >${val.nm}</option>`;
-					}
-
-					});
-
-					$('#jns_beban'+rowNum).html(option);
-					$('.select2').select2({
-						containerCssClass: "wrap",
-						placeholder: '--- Pilih ---',
-						dropdownAutoWidth: true
-					});
-					swal.close();
-				}else{	
-					option += "<option value=''></option>";
-					$('#jns_beban'+rowNum).html(option);					
-					swal.close();
-				}
-			}
-		});
-	}
-	
 	function addRow() 
 	{
 		var b = $('#bucket').val();
@@ -374,50 +282,59 @@
 			b = 0;
 			rowNum = 0;
 		}
-		var ket         = $('#ket' + b).val();
-		var jns_beban   = $('#jns_beban' + b).val();
-		var nominal     = $('#nominal' + b).val();
+		var nm_barang   = $('#nm_barang' + b).val();
+		var spek        = $('#spek' + b).val();
+		var hrg_sat     = $('#hrg_sat' + b).val();
 			
-		if (nominal != '0' && nominal != '' && jns_beban != '' && ket != '') 
+		if (nm_barang != '' && spek != '' && hrg_sat != '' && hrg_sat != 0) 
 		{			
 			rowNum++;
 			var x = rowNum + 1;
 			
 				$('#table_list_item').append(
 					`<tr id="itemRow${ rowNum }">
-						<td id="detail-hapus-${ rowNum }">
-							<div class="text-center">
-								<a class="btn btn-danger" id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })">
-									<i class="far fa-trash-alt" style="color:#fff"></i> 
-								</a>
-							</div>
-						</td>
-						<td style="padding : 12px 20px">
-							<div class="input-group mb-1">
-								<input type="text" size="5" name="transaksi[${ rowNum }]" id="transaksi${ rowNum }" class="form-control">
-							</div>
-						</td>		
+							<td id="detail-hapus-${ rowNum }">
+								<div class="text-center">
+									<a class="btn btn-danger" id="btn-hapus-${ rowNum }" onclick="removeRow(${ rowNum })">
+										<i class="far fa-trash-alt" style="color:#fff"></i> 
+									</a>
+								</div>
+							</td>
 
-						<td style="padding : 12px 20px">
-							<div class="input-group mb-1">
-								<select name="jns_beban[${ rowNum }]"  id="jns_beban${ rowNum }" class="form-control select2" style="width: 100%">
-								</select>	
-							</div>
-						</td>		
-						<td style="padding : 12px 20px">
-							<div class="input-group mb-1">
-								<div class="input-group-append">
-									<span class="input-group-text"><b>Rp</b>
-									</span>
-								</div>	
-								<input type="text" size="5" name="nominal[${ rowNum }]" id="nominal${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
-									
-							</div>
-							
-						</td>		
-					</tr>
-					`);
-				jenis_beban(rowNum);
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="nm_barang[${ rowNum }]" id="nm_barang${ rowNum }" class="form-control">
+								</div>
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="spek[${ rowNum }]" id="spek${ rowNum }" class="form-control">
+								</div>
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>	
+									<input type="text" size="5" name="hrg_sat[${ rowNum }]" id="hrg_sat${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='0'>
+								</div>
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="moq[${ rowNum }]" id="moq${ rowNum }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='0' >
+										
+								</div>
+								
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="note[${ rowNum }]" id="note${ rowNum }" class="form-control" value='-'>
+										
+								</div>
+								
+							</td>		
+						</tr>`);
 				$('#bucket').val(rowNum);
 				$('#list' + rowNum).focus();
 		}else{
@@ -539,7 +456,7 @@
 		})
 	}
 	
-	function edit_data(id,no_po)
+	function edit_data(id,no_tawar)
 	{
 		$(".row-input").attr('style', '');
 		$(".row-list").attr('style', 'display:none');
@@ -550,7 +467,7 @@
 		$.ajax({
 			url        : '<?= base_url(); ?>Transaksi/load_data_1',
 			type       : "POST",
-			data       : { id, jenis :'edit_inv_beli' },
+			data       : { no:no_tawar, jenis :'edit_tawar' },
 			dataType   : "JSON",
 			beforeSend: function() {
 				swal({
@@ -565,14 +482,13 @@
 			success: function(data) {
 				if(data){
 					// header
-					$("#id_header_beli").val(data.header.id_header_beli);
-					$("#no_inv_beli").val(data.header.no_inv_beli);
-					$("#id_hub").val(data.header.id_hub).trigger('change');
-					$("#id_supp").val(data.header.id_supp).trigger('change');
-					$("#tgl_inv").val(data.header.tgl_inv_beli);
-					$("#pajak").val(data.header.pajak);
+					$("#id_header_penawaran").val(data.header.id_header_penawaran);
+					$("#no_penawaran").val(data.header.no_penawaran);
+					$("#hal").val(data.header.hal);
+					$("#tgl_tawar").val(data.header.tgl_penawaran);
+					$("#kpd").val(data.header.kpd);
 					$("#ket").val(data.header.ket);
-					$("#diskon").val(format_angka(data.header.diskon));	
+					$("#alamat").val(data.header.alamat);
 					
 					swal.close();
 					// detail
@@ -582,135 +498,69 @@
 							<thead class="color-tabel">
 								<tr>
 									<th id="header_del">Delete</th>
-									<th style="padding : 12px 50px">Transaksi</th>
-									<th style="padding : 12px 70px" >Jenis Beban</th>
-									<th style="padding : 12px 50px" >Nominal</th>
+									<th style="padding : 12px 50px">Nama Barang</th>
+									<th style="padding : 12px 70px" >Spesifikasi</th>
+									<th style="padding : 12px 50px" >Harga Satuan</th>
+									<th style="padding : 12px 50px" >MoQ</th>
+									<th style="padding : 12px 50px" >Note</th>
 								</tr>
 							</thead>`;
 						
 					var no   = 0;
 					$.each(data.detail, function(index, val) {
 						
-						jenis_beban2(no,val.jns_beban)	
 						list += `
 							<tr id="itemRow${ no }">
-								<td id="detail-hapus-${ no }">
-									<div class="text-center">
-										<a class="btn btn-danger" id="btn-hapus-${ no }" onclick="removeRow(${ no })">
-											<i class="far fa-trash-alt" style="color:#fff"></i> 
-										</a>
-									</div>
-								</td>
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<input type="text" size="5" name="transaksi[${ no }]" id="transaksi${ no }" class="form-control" value="${(val.transaksi)}">
-									</div>
-								</td>		
+							<td id="detail-hapus-${ no }">
+								<div class="text-center">
+									<a class="btn btn-danger" id="btn-hapus-${ no }" onclick="removeRow(${ no })">
+										<i class="far fa-trash-alt" style="color:#fff"></i> 
+									</a>
+								</div>
+							</td>
 
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<select name="jns_beban[${ no }]"  id="jns_beban${ no }" class="form-control select2" style="width: 100%">
-											<option value="${val.jns_beban}" selected data-nm="${val.nm}" >${val.jns_beban}</option>
-										</select>	
-									</div>
-								</td>		
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<div class="input-group-append">
-											<span class="input-group-text"><b>Rp</b>
-											</span>
-										</div>	
-										<input type="text" size="5" name="nominal[${ no }]" id="nominal${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value="${format_angka(val.nominal)}">
-											
-									</div>
-									
-								</td>		
-							</tr>
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="nm_barang[${ no }]" id="nm_barang${ no }" class="form-control" value='${val.nm_barang}'>
+								</div>
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="spek[${ no }]" id="spek${ no }" class="form-control" value='${val.spek}'>
+								</div>
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<div class="input-group-append">
+										<span class="input-group-text"><b>Rp</b>
+										</span>
+									</div>	
+									<input type="text" size="5" name="hrg_sat[${ no }]" id="hrg_sat${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),hitung_total()" value='${format_angka(val.hrg_sat)}'>
+								</div>
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="moq[${ no }]" id="moq${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id)" value='${format_angka(val.moq)}' >
+										
+								</div>
+								
+							</td>		
+							<td style="padding : 12px 20px">
+								<div class="input-group mb-1">
+									<input type="text" size="5" name="note[${ no }]" id="note${ no }" class="form-control" value='${val.note}'>
+										
+								</div>
+								
+							</td>		
+						</tr>
 						`;
 						no ++;
 					})
 					
-					list +=`<tfoot>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">SUB TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="total_nom" id="total_nom" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="disk_total" id="disk_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="pajak_total" id="pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPH</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="pph_total" id="pph_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="total_all" id="total_all" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-							</tfoot>`;
 					rowNum = no-1 
 					$('#bucket').val(rowNum);					
 					$("#table_list_item").html(list);
-					hitung_total()	
+					// hitung_total()	
 					swal.close();
 
 				} else {
@@ -739,204 +589,6 @@
 				return;
 			}
 		});
-	}
-
-	// MODAL //
-	function open_modal(id,no_invoice) 
-	{		
-		$("#modalForm").modal("show");
-		$("#judul").html('<h3> VERIFIKASI OWNER </h3>');
-		
-		$.ajax({
-			url        : '<?= base_url(); ?>Transaksi/load_data_1',
-			type       : "POST",
-			data       : { id, jenis :'edit_inv_beli' },
-			dataType   : "JSON",
-			beforeSend: function() {
-				swal({
-				title: 'loading data...',
-				allowEscapeKey    : false,
-				allowOutsideClick : false,
-				onOpen: () => {
-					swal.showLoading();
-				}
-				})
-			},
-			success: function(data) {
-				if(data){
-					// header
-					$("#m_id_header_beli").val(data.header.id_header_beli);
-					$("#m_no_inv_beli").val(data.header.no_inv_beli);
-					$("#m_id_hub").val(data.header.nm_hub);
-					$("#m_id_supp").val(data.header.nm_supp);
-					$("#m_tgl_inv").val(data.header.tgl_inv_beli);
-					$("#m_pajak").val(data.header.pajak); 
-					$("#m_ket").val(data.header.ket);
-					$("#m_diskon").val(format_angka(data.header.diskon));	
-					
-					swal.close();
-
-					if(data.header.acc_owner == 'Y')
-					{
-						$("#modal_btn_verif").html(`<button type="button" class="btn btn-success" id="modal_btn_verif" onclick="acc_inv('Y')"><i class="fas fa-lock"></i><b> BATAL VERIFIKASI </b></button>`)
-					}else{
-						$("#modal_btn_verif").html(`<button type="button" class="btn btn-success" id="modal_btn_verif" onclick="acc_inv('N')"><i class="fas fa-check"></i><b> VERIFIKASI </b></button>`)
-
-					}
-					// detail
-
-					var list = `
-						<table class="table table-hover table-striped table-bordered table-scrollable table-condensed" id="m_table_list_item" width="100%">
-							<thead class="color-tabel">
-								<tr>
-									<th style="padding : 12px 50px">Transaksi</th>
-									<th style="padding : 12px 70px" >Jenis Beban</th>
-									<th style="padding : 12px 50px" >Nominal</th>
-								</tr>
-							</thead>`;
-						
-					var no   = 0;
-					$.each(data.detail, function(index, val) {
-							
-						list += `
-							<tr id="m_itemRow${ no }">
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<input type="text" size="5" name="m_transaksi[${ no }]" id="m_transaksi${ no }" class="form-control" value="${(val.transaksi)}" readonly>
-									</div>
-								</td>		
-
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<input type="text"  name="m_jns_beban[${ no }]" id="m_jns_beban${ no }" class="form-control" value="${(val.nm)}" readonly>
-									</div>
-								</td>		
-								<td style="padding : 12px 20px">
-									<div class="input-group mb-1">
-										<div class="input-group-append">
-											<span class="input-group-text"><b>Rp</b>
-											</span>
-										</div>	
-										<input type="text" size="5" name="m_nominal[${ no }]" id="m_nominal${ no }" class="angka form-control" onkeyup="ubah_angka(this.value,this.id),m_hitung_total()" value="${format_angka(val.nominal)}" readonly>
-											
-									</div>
-									
-								</td>		
-							</tr>
-						`;
-						no ++;
-					})
-					
-					list +=`<tfoot>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">SUB TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_total_nom" id="m_total_nom" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">DISKON</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_disk_total" id="m_disk_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">PPN</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_pajak_total" id="m_pajak_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="3" class="text-right">
-										<label for="total">PPH</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_pph_total" id="m_pph_total" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-								<tr>
-									<td colspan="2" class="text-right">
-										<label for="total">TOTAL</label>
-									</td>	
-									<td>
-										<div class="input-group mb-1">
-											<div class="input-group-append">
-												<span class="input-group-text"><b>Rp</b>
-												</span>
-											</div>		
-											<input type="text" size="5" name="m_total_all" id="m_total_all" class="angka form-control" value='0' readonly>
-										</div>
-										
-									</td>	
-								</tr>
-							</tfoot>`;
-					rowNum = no-1 
-					$('#m_bucket').val(rowNum);					
-					$("#m_table_list_item").html(list);
-					m_hitung_total()	
-					swal.close();
-
-				} else {
-
-					swal.close();
-					swal({
-						title               : "Cek Kembali",
-						html                : "Gagal Simpan",
-						type                : "error",
-						confirmButtonText   : "OK"
-					});
-					return;
-				}
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				// toastr.error('Terjadi Kesalahan');
-				
-				swal.close();
-				swal({
-					title               : "Cek Kembali",
-					html                : "Terjadi Kesalahan",
-					type                : "error",
-					confirmButtonText   : "OK"
-				});
-				
-				return;
-			}
-		});
-
 	}
 
 	function acc_inv(no_invoice,status_owner) 
@@ -1038,21 +690,23 @@
 	{
 		$tgl = '<?= date('Y-m-d') ?>'	
 		rowNum = 0
-		$("#id_hub").val('').trigger('change');	
-		$("#id_supp").val('').trigger('change');	
-		$("#pajak").val('').trigger('change');	
-		$("#diskon").val('') 
-		$("#diskon").val('') 
-		$("#ket").val('') 		
-		$("#tgl_inv").val($tgl) 
-		$("#no_inv_beli").val('AUTO') 
-
-		$("#transaksi0").val('');			
-		$("#jns_beban0").val('').trigger('change');	
-		$("#nominal0").val(0);		
+		$("#id_header_penawaran").val('') 
+		$("#hal").val('') 
+		$("#tgl_tawar").val($tgl) 
+		$("#kpd").val('') 
+		$("#ket").val('') 
+		$("#alamat").val('') 
+		$("#no_penawaran").val('AUTO') 
+ 
+		$("#nm_barang0").val('');		
+		$("#spek0").val('');		
+		$("#hrg_sat0").val(0);		
+		$("#moq0").val(0);		
+		$("#note0").val('');		
+		
 		// load_hub()
 		clearRow()
-		hitung_total()
+		// hitung_total()
 		
 		swal.close()
 	}
@@ -1151,13 +805,13 @@
 		$(".row-list").attr('style', '')
 	}
 
-	function deleteData(id,no_inv_beli) 
+	function deleteData(id,no_penawaran) 
 	{
 		// let cek = confirm("Apakah Anda Yakin?");
 		swal({
 			title: "HAPUS PEMBAYARAN",
 			html: "<p> Apakah Anda yakin ingin menghapus file ini ?</p><br>"
-			+"<strong>" +no_inv_beli+ " </strong> ",
+			+"<strong>" +no_penawaran+ " </strong> ",
 			type               : "question",
 			showCancelButton   : true,
 			confirmButtonText  : '<b>Hapus</b>',
@@ -1171,9 +825,9 @@
 			$.ajax({
 				url: '<?= base_url(); ?>Transaksi/hapus',
 				data: ({
-					id         : no_inv_beli,
-					jenis      : 'inv_beli',
-					field      : 'no_inv_beli'
+					id         : no_penawaran,
+					jenis      : 'tawar',
+					field      : 'penawaran_header'
 				}),
 				type: "POST",
 				beforeSend: function() {

@@ -117,7 +117,7 @@ class M_master extends CI_Model{
 				'alamat'      => $_POST["alamat"],
 				'npwp'        => $_POST["npwp"],
 				'no_telp'     => $_POST["no_telp"],
-				'kode_pos'    => $_POST["kode_pos"],
+				'no_rek'      => $_POST["norek"],
 			);
 
 			if ($status == 'insert') {
@@ -145,6 +145,7 @@ class M_master extends CI_Model{
 		$alamat         = $_POST["alamat"];
 		$no_hp          = $_POST["no_hp"];
 		$jt             = $_POST["jt"];
+		$npwp           = $_POST["npwp"];
 		
 		$cekKode      = $this->db->query("SELECT*FROM m_supplier WHERE nm_supp='$nm_supp'");
 
@@ -166,6 +167,8 @@ class M_master extends CI_Model{
 				'alamat'    => $_POST["alamat"],
 				'no_hp'     => $_POST["no_hp"],
 				'jt'        => $_POST["jt"],
+				'npwp'      => $_POST["npwp"],
+				'norek'     => $_POST["norek"],
 			);
 
 			if ($status == 'insert') {
@@ -186,6 +189,63 @@ class M_master extends CI_Model{
 		}
     }
     
+	function m_brg()
+	{
+		$status_input = $this->input->post('sts_input');
+		if($status_input == 'add')
+		{
+			$data_header = array(
+				'kd_barang'     => $this->input->post('kd_brg'),
+				'nm_brg'        => $this->input->post('nm_brg'),
+				'ukuran'        => $this->input->post('ukuran'),
+				'merk'          => $this->input->post('merk'),
+				'supplier'      => $this->input->post('supp'),
+				'ket'           => $this->input->post('ket'),
+				'qty_besar'     => $this->input->post('qty1'),
+				'sat_besar'     => $this->input->post('sat1'),
+				'qty_sedang'    => $this->input->post('qty2'),
+				'sat_sedang'    => $this->input->post('sat2'),
+				'qty_kecil'     => $this->input->post('qty3'),
+				'sat_kecil'     => $this->input->post('sat3'),
+				'add_time'      => date("Y:m:d H:i:s"),
+				'add_user'      => $this->username,
+
+			);
+
+			$result_header = $this->db->insert('m_brg', $data_header);
+	
+			return $result_header;
+			
+		}else{
+			
+			$no_penawaran    = $this->input->post('no_penawaran');
+
+			$data_header = array(
+				'kd_barang'     => $this->input->post('kd_brg'),
+				'nm_brg'        => $this->input->post('nm_brg'),
+				'ukuran'        => $this->input->post('ukuran'),
+				'merk'          => $this->input->post('merk'),
+				'supplier'      => $this->input->post('supp'),
+				'ket'           => $this->input->post('ket'),
+				'qty_besar'     => $this->input->post('qty1'),
+				'sat_besar'     => $this->input->post('sat1'),
+				'qty_sedang'    => $this->input->post('qty2'),
+				'sat_sedang'    => $this->input->post('sat2'),
+				'qty_kecil'     => $this->input->post('qty3'),
+				'sat_kecil'     => $this->input->post('sat3'),
+				'add_time'      => date("Y:m:d H:i:s"),
+				'add_user'      => $this->username,
+
+			);
+
+			$this->db->where('id_brg', $this->input->post('id_barang'));
+			$result_header = $this->db->update('m_brg', $data_header);
+	
+			return $result_header;
+		}
+	}
+
+
 	function m_pelanggan($table,$status)
 	{
 		$kode_lama = $_POST["kode_lama"];
